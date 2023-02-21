@@ -7,29 +7,27 @@ const app = express();
 
 app.get("/products", async (req, res) => {
   const products = await manager.getProducts();
-  const {limit} = req.query;  
-  const limitedProducts = products.slice(0, limit);
-  res.send(limitedProducts)
+  const { limit } = req.query;
+  if (limit) {
+    const limitedProducts = products.slice(0, limit);
+    res.send(limitedProducts);
+  } else {
+    res.send(products);
+  }
 });
 
 app.get("/products/:id", async (req, res) => {
-  const products = await manager.getProducts();
-  console.log(products);
-
+  const findProduct = await manager.getProductById(req.params.id);
   const { id } = req.params;
-  const product = products.find((p) => p.id === id);
 
-  if (!product) {
+  if (!id) {
     return res
       .status(404)
       .send({ error: `Product ${req.params.id} not found` });
   } else {
-    res.send(product);
+    res.send(findProduct);
   }
 });
-
-
-
 
 app.listen(8080, () => {
   console.log("server listening on");
