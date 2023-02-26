@@ -17,13 +17,11 @@ app.get("/products", async (req, res) => {
 });
 
 app.get("/products/:id", async (req, res) => {
-  const findProduct = await manager.getProductById(req.params.id);
   const { id } = req.params;
+  const findProduct = await manager.getProductById(req.params.id);
 
-  if (!id) {
-    return res
-      .status(404)
-      .send({ error: `Product ${req.params.id} not found` });
+  if (!findProduct) {
+    return res.status(404).send({ error: `Product ${id} not found` });
   } else {
     res.send(findProduct);
   }
