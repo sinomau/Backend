@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from "fs";
 
-class ProductManager {
+class productManager {
   #accumulator = 0;
   #path;
 
@@ -8,19 +8,28 @@ class ProductManager {
     this.#path = path;
   }
 
-  async addProduct(title, description, price, thumbnail = "", code, stock) {
+  async addProduct(
+    title,
+    description,
+    code,
+    price,
+    status = true,
+    stock,
+    category,
+    thumbnail = ""
+  ) {
     try {
       const newProduct = {
-        id: this.#accumulator,
+        id: this.#accumulator++,
         title,
         description,
-        price,
-        thumbnail,
         code,
+        price,
+        status,
         stock,
+        category,
+        thumbnail,
       };
-
-      this.#accumulator++;
 
       const products = await this.getProducts();
 
@@ -32,8 +41,9 @@ class ProductManager {
       const updateProducts = [...products, newProduct];
 
       await fs.promises.writeFile(this.#path, JSON.stringify(updateProducts));
+      return updateProducts;
     } catch (err) {
-      console.log(err);
+      return err;
     }
   }
 
@@ -42,6 +52,7 @@ class ProductManager {
       const stock = await fs.promises.readFile(this.#path, "utf-8");
       return JSON.parse(stock);
     } catch (e) {
+      console.log(e);
       return [];
     }
   }
@@ -49,12 +60,9 @@ class ProductManager {
   async getProductById(productId) {
     try {
       const getStock = await this.getProducts();
-      const finded = getStock.find((product) => product.id === productId);
-      console.log(finded);
-      if (finded) {
-        return finded;
-      } else {
-        console.log("product not found");
+      const find = getStock.find((product) => product.id === productId);
+      if (find) {
+        return find;
       }
     } catch (err) {
       err;
@@ -63,6 +71,7 @@ class ProductManager {
 
   async deleteProduct(productId) {
     try {
+      console.log(productId);
       const products = await this.getProducts();
       const findProduct = products.findIndex(
         (product) => product.id === productId
@@ -101,6 +110,4 @@ class ProductManager {
   }
 }
 
-
-
-export default ProductManager;
+export default productManager;
