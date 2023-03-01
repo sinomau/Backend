@@ -1,11 +1,22 @@
 import fs from "fs";
 
 class productManager {
-  #accumulator = 0;
   #path;
 
   constructor(path) {
     this.#path = path;
+  }
+
+  generateId(array) {
+    let lastId = 0;
+
+    array.forEach((p) => {
+      if (p.id > lastId) {
+        lastId = p.id;
+      }
+    });
+
+    return lastId + 1;
   }
 
   async addProduct(
@@ -20,7 +31,7 @@ class productManager {
   ) {
     try {
       const newProduct = {
-        id: this.#accumulator++,
+        id: this.generateId(await this.getProducts()),
         title,
         description,
         code,
@@ -58,20 +69,17 @@ class productManager {
   }
 
   async getProductById(productId) {
-    try {
-      const getStock = await this.getProducts();
-      const find = getStock.find((product) => product.id === productId);
-      if (find) {
-        return find;
-      }
-    } catch (err) {
-      err;
+    const getStock = await this.getProducts();
+    const find = getStock.find((product) => product.id === productId);
+    if (find) {
+      return find;
+    } else {
+      throw new Error("Product not found");
     }
   }
 
   async deleteProduct(productId) {
     try {
-      console.log(productId);
       const products = await this.getProducts();
       const findProduct = products.findIndex(
         (product) => product.id === productId
@@ -88,24 +96,35 @@ class productManager {
   }
 
   async updateProduct(productId, dataToUpdate) {
-    if (dataToUpdate.hasOwnProperty("id")) {
-      await console.log("Error No puede Cambiar Id de producto");
-      return await this.updateProduct;
-    } else {
-      try {
-        const products = await this.getProducts();
+    try {
+      console.log(productId);
+      const products = await this.getProducts();
+      console.log(products);
+      const findProduct = products.find((product) => product.id === productId);
 
-        const updatedProducts = products.map((p) =>
-          p.id === productId ? { ...p, ...dataToUpdate } : p
-        );
-
-        await fs.promises.writeFile(
-          this.#path,
-          JSON.stringify(updatedProducts)
-        );
-      } catch (err) {
-        console.log(err);
+      if (!findProduct) {
+        throw new Error("Product not found");
       }
+
+      if (Object.keys(dataToUpdate).includes("id")) {
+        throw new Error("Cannot update id");
+      }
+
+      if (Object.keys(dataToUpdate).includes("code")) {
+        const codeRepeat = products.find((p) => p.code === dataToUpdate.code);
+        if (codeRepeat) {
+          throw new Error("Product repeat!!");
+        }
+      }
+
+      dataToUpdate = { ...findProduct, ...dataToUpdate };
+
+      let newProducts = products.filter((p) => p.id !== productId);
+      newProducts = [...newProducts, dataToUpdate];
+
+      await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
+    } catch (err) {
+      console.log(err);
     }
   }
 }

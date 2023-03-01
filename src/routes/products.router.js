@@ -8,24 +8,27 @@ const productsRouter = Router();
 productsRouter.use(json());
 
 productsRouter.get("/", async (req, res) => {
-  const products = await manager.getProducts();
-  const { limit } = req.query;
-  if (limit) {
-    const limitedProducts = products.slice(0, limit);
-    res.send(limitedProducts);
-  } else {
-    res.send(products);
+  try {
+    const products = await manager.getProducts();
+    const { limit } = req.query;
+    if (limit) {
+      const limitedProducts = products.slice(0, limit);
+      return res.send({ status: "success", payload: limitedProducts });
+    } else {
+      res.send(products);
+    }
+  } catch (err) {
+    res.status(404).send({ status: "error", error: `${err}` });
   }
 });
 
 productsRouter.get("/:pid", async (req, res) => {
-  const idProduct = req.params.pid;
-  const findProduct = await manager.getProductById(idProduct);
-
-  if (!findProduct) {
-    return res.status(404).send({ error: `Product ${idProduct} not found` });
-  } else {
-    res.send(findProduct);
+  try {
+    const { pid } = req.params;
+    const getProductById = await manager.getProductById(parseInt(pid));
+    res.send({ status: "succes", payload: getProductById });
+  } catch (err) {
+    res.status(404).send({ status: "error", error: `${err}` });
   }
 });
 
@@ -40,6 +43,7 @@ productsRouter.post("/", async (req, res) => {
     category,
     thumbnail,
   } = req.body;
+
   const addProduct = await manager.addProduct(
     title,
     description,
@@ -55,12 +59,10 @@ productsRouter.post("/", async (req, res) => {
 });
 
 productsRouter.put("/:id", async (req, res) => {
-  const productId = req.params.id;
-  const newProduct = req.body;
+  const { id } = req.params;
 
-  const updateProducts = await manager.updateProduct(productId, ...newProduct);
-
-  res.send(updateProducts);
+  const updateProduct = await manager.updateProduct(parseInt(id), req.body);
+  res.send({ status: "success", payload: updateProduct });
 });
 
 productsRouter.delete("/:id", async (req, res) => {
