@@ -59,16 +59,24 @@ productsRouter.post("/", async (req, res) => {
 });
 
 productsRouter.put("/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const updateProduct = await manager.updateProduct(parseInt(id), req.body);
-  res.send({ status: "success", payload: updateProduct });
+  try {
+    const { id } = req.params;
+    const updateProduct = await manager.updateProduct(parseInt(id), req.body);
+    res.send({ status: "success", payload: updateProduct });
+  } catch (err) {
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
 });
 
 productsRouter.delete("/:id", async (req, res) => {
-  const deleteId = req.params.id;
-  const deleteProduct = await manager.deleteProduct(deleteId);
-  res.send(deleteProduct);
+  try {
+    const { id } = req.params;
+    const idParsed = parseInt(id);
+    await manager.deleteProduct(idParsed);
+    res.send({ status: "succes", payload: "Producto eliminado" });
+  } catch (err) {
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
 });
 
 export default productsRouter;

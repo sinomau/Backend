@@ -54,7 +54,7 @@ class productManager {
       await fs.promises.writeFile(this.#path, JSON.stringify(updateProducts));
       return updateProducts;
     } catch (err) {
-      return err;
+      throw new Error("Product not added");
     }
   }
 
@@ -77,55 +77,46 @@ class productManager {
       throw new Error("Product not found");
     }
   }
-
   async deleteProduct(productId) {
-    try {
-      const products = await this.getProducts();
-      const findProduct = products.findIndex(
-        (product) => product.id === productId
+    const products = await this.getProducts();
+    const id = products.find((product) => product.id === productId);
+
+    if (!id) {
+      throw new Error("Product not found");
+    } else {
+      products.findIndex((product) => product.id === productId);
+      const newProducts = products.filter(
+        (product) => product.id !== productId
       );
-      if (findProduct === productId) {
-        products.splice(findProduct, 1);
-        await fs.promises.writeFile(this.#path, JSON.stringify(products));
-      } else {
-        throw new Error("Product not found");
-      }
-    } catch (err) {
-      console.log(err);
+      await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
     }
   }
 
   async updateProduct(productId, dataToUpdate) {
-    try {
-      console.log(productId);
-      const products = await this.getProducts();
-      console.log(products);
-      const findProduct = products.find((product) => product.id === productId);
+    const products = await this.getProducts();
+    const findProduct = products.find((product) => product.id === productId);
 
-      if (!findProduct) {
-        throw new Error("Product not found");
-      }
-
-      if (Object.keys(dataToUpdate).includes("id")) {
-        throw new Error("Cannot update id");
-      }
-
-      if (Object.keys(dataToUpdate).includes("code")) {
-        const codeRepeat = products.find((p) => p.code === dataToUpdate.code);
-        if (codeRepeat) {
-          throw new Error("Product repeat!!");
-        }
-      }
-
-      dataToUpdate = { ...findProduct, ...dataToUpdate };
-
-      let newProducts = products.filter((p) => p.id !== productId);
-      newProducts = [...newProducts, dataToUpdate];
-
-      await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
-    } catch (err) {
-      console.log(err);
+    if (!findProduct) {
+      throw new Error("Product not found");
     }
+
+    if (Object.keys(dataToUpdate).includes("id")) {
+      throw new Error("Cannot update id");
+    }
+
+    if (Object.keys(dataToUpdate).includes("code")) {
+      const codeRepeat = products.find((p) => p.code === dataToUpdate.code);
+      if (codeRepeat) {
+        throw new Error("Product repeat!!");
+      }
+    }
+
+    dataToUpdate = { ...findProduct, ...dataToUpdate };
+
+    let newProducts = products.filter((p) => p.id !== productId);
+    newProducts = [...newProducts, dataToUpdate];
+
+    await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
   }
 }
 
