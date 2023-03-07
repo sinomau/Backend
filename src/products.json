@@ -1,1 +1,92 @@
-[]
+[
+  {
+    "id": 1,
+    "title": "Pelota ",
+    "description": "Futbol 5",
+    "code": 55,
+    "price": 1500,
+    "status": true,
+    "stock": 500,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 2,
+    "title": "Pelota ",
+    "description": "Voley",
+    "code": 57,
+    "price": 5000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 3,
+    "title": "Pelota ",
+    "description": "Golf",
+    "code": 58,
+    "price": 2000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 4,
+    "title": "Guantes ",
+    "description": "Arquero",
+    "code": 59,
+    "price": 5400,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 5,
+    "title": "Medias",
+    "description": "Futbol",
+    "code": 60,
+    "price": 1000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 6,
+    "title": "Botines ",
+    "description": "Rugby",
+    "code": 62,
+    "price": 33000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 7,
+    "title": "Zapatillas ",
+    "description": "Tenis",
+    "code": 63,
+    "price": 24000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 8,
+    "title": "Zapatillas ",
+    "description": "Deportivas",
+    "code": 64,
+    "price": 25000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  },
+  {
+    "id": 9,
+    "title": "Gorra ",
+    "description": "Golf",
+    "code": 65,
+    "price": 3000,
+    "status": true,
+    "stock": 100,
+    "thumbnail": "Sin Imagen"
+  }
+]

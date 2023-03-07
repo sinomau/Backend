@@ -15,8 +15,8 @@ productsRouter.get("/", async (req, res) => {
       const limitedProducts = products.slice(0, limit);
       return res.send({ status: "success", payload: limitedProducts });
     } else {
-      res.send(products);
-    }
+      res.send({ status: "success", payload: products });
+      }
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
