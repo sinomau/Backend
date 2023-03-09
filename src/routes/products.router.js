@@ -11,12 +11,13 @@ productsRouter.get("/", async (req, res) => {
   try {
     const products = await manager.getProducts();
     const { limit } = req.query;
+
     if (limit) {
       const limitedProducts = products.slice(0, limit);
       return res.send({ status: "success", payload: limitedProducts });
     } else {
       res.send({ status: "success", payload: products });
-      }
+    }
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
@@ -54,8 +55,8 @@ productsRouter.post("/", async (req, res) => {
     category,
     thumbnail
   );
-
   res.json(addProduct);
+  req.io.emit("new-product", req.body);
 });
 
 productsRouter.put("/:id", async (req, res) => {
@@ -63,6 +64,7 @@ productsRouter.put("/:id", async (req, res) => {
     const { id } = req.params;
     const updateProduct = await manager.updateProduct(parseInt(id), req.body);
     res.send({ status: "success", payload: updateProduct });
+    req.io.emit("update-product", req.body);
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
@@ -73,6 +75,8 @@ productsRouter.delete("/:id", async (req, res) => {
     const { id } = req.params;
     const idParsed = parseInt(id);
     await manager.deleteProduct(idParsed);
+    const products = await manager.getProducts();
+    req.io.emit("delete-product", products);
     res.send({ status: "succes", payload: "Producto eliminado" });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });

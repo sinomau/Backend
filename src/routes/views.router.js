@@ -1,18 +1,18 @@
-import { Router, json } from "express";
+import { Router } from "express";
 import ProductManager from "../product.manager.js";
 
-const item = new ProductManager("./src/products.json");
+const manager = new ProductManager("./src/products.json");
 
 const viewer = Router();
 
-viewer.get("/", async (req,res) =>{
-    const products = await item.getProducts();
-    res.render("home", {products});
-})
-
-viewer.get('/realTime', (req, res) => {
-    res.render('real_time_products');
+viewer.get("/", async (req, res) => {
+  const products = await manager.getProducts();
+  res.render("home", { products });
 });
 
+viewer.get("/real-time-products", async (req, res) => {
+  const products = await manager.getProducts();
+  res.render("real_time_products", { products });
+});
 
 export default viewer;
