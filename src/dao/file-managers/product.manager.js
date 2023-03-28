@@ -1,10 +1,12 @@
 import fs from "fs";
+import __dirname from "../../utils.js";
 
 class productManager {
-  #path;
+  #path = __dirname + "/dao/file-managers/files/products.json";
 
   constructor(path) {
-    this.#path = path;
+    this.path = path;
+    console.log("Working with products file system");
   }
 
   generateId(array) {
@@ -19,16 +21,16 @@ class productManager {
     return lastId + 1;
   }
 
-  async addProduct(
+  async addProduct({
     title,
     description,
     code,
     price,
-    status = true,
+    status,
     stock,
     category,
-    thumbnail = ""
-  ) {
+    thumbnail,
+  }) {
     try {
       const newProduct = {
         id: this.generateId(await this.getProducts()),
@@ -70,7 +72,8 @@ class productManager {
 
   async getProductById(productId) {
     const getStock = await this.getProducts();
-    const find = getStock.find((product) => product.id === productId);
+    const parsedProdId = parseInt(productId);
+    const find = getStock.find((product) => product.id === parsedProdId);
     if (find) {
       return find;
     } else {
@@ -79,14 +82,16 @@ class productManager {
   }
   async deleteProduct(productId) {
     const products = await this.getProducts();
-    const id = products.find((product) => product.id === productId);
+    const parsedId = parseInt(productId);
+    console.log(parsedId)
+    const id = products.find((product) => product.id === parsedId);
 
     if (!id) {
       throw new Error("Product not found");
     } else {
-      products.findIndex((product) => product.id === productId);
+      products.findIndex((product) => product.id === parsedId);
       const newProducts = products.filter(
-        (product) => product.id !== productId
+        (product) => product.id !== parsedId
       );
       await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
     }
@@ -94,7 +99,8 @@ class productManager {
 
   async updateProduct(productId, dataToUpdate) {
     const products = await this.getProducts();
-    const findProduct = products.find((product) => product.id === productId);
+    const parsedId = parseInt(productId);
+    const findProduct = products.find((product) => product.id === parsedId);
 
     if (!findProduct) {
       throw new Error("Product not found");

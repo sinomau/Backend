@@ -1,10 +1,12 @@
 import fs from "fs";
+import __dirname from "../../utils.js";
 
 class cartsManager {
-  #path;
+  #path = __dirname + "/dao/file-managers/files/carts.json";
 
   constructor(path) {
-    this.#path = path;
+    this.path = path;
+    console.log("Working with Carts file system");
   }
 
   generateId(array) {
@@ -39,13 +41,16 @@ class cartsManager {
       carts = [...carts, cart];
       await fs.promises.writeFile(this.#path, JSON.stringify(carts));
     } catch (err) {
-      throw new Error("Product not added");
+      throw new Error("Cart not added");
     }
   }
 
-  async getCartProducts(productId) {
+  async getCartProducts(cartId) {
     const carts = await this.getCarts();
-    const find = carts.find((cart) => cart.id === productId);
+    const parsedId = parseInt(cartId);
+    console.log(carts);
+    const find = carts.find((e) => e.id === parsedId);
+
     if (find) {
       return find;
     } else {
@@ -55,11 +60,14 @@ class cartsManager {
 
   async addProductToCart(prod, cartID) {
     try {
+      const prodParsed = parseInt(prod);
+      const cartIdParsed = parseInt(cartID);
+
       let carts = await this.getCarts();
-      let cart = await this.getCartProducts(cartID);
+      let cart = await this.getCartProducts(cartIdParsed);
 
       //Verifico si el producto existe en el carrito
-      let prodInCart = cart.products.find((p) => p.id === prod.id);
+      let prodInCart = cart.products.find((p) => p.id === prodParsed.id);
 
       if (prodInCart) {
         prodInCart.quantity += 1;
@@ -68,7 +76,7 @@ class cartsManager {
         );
         filterProducts = [...filterProducts, prodInCart];
         cart.products = filterProducts;
-        let newCarts = carts.filter((c) => c.id !== cartID);
+        let newCarts = carts.filter((c) => c.id !== cartIdParsed);
         newCarts = [...newCarts, cart];
         await fs.promises.writeFile(this.#path, JSON.stringify(newCarts));
       } else {
@@ -79,7 +87,7 @@ class cartsManager {
             quantity: 1,
           },
         ];
-        let newCarts = carts.filter((c) => c.id !== cartID);
+        let newCarts = carts.filter((c) => c.id !== cartIdParsed);
         newCarts = [...newCarts, cart];
         await fs.promises.writeFile(this.#path, JSON.stringify(newCarts));
       }

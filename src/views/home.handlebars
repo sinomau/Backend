@@ -1,4 +1,5 @@
 {{#each products}}
+<article>
   <div id="list" >
     <ul>
       <li>Producto: {{title}}</li>
@@ -8,6 +9,7 @@
       <li>Stock: {{stock}}</li>
     </ul>
   </div>
+  </article>
 {{/each}}
 
 <script src="/socket.io/socket.io.js"></script>

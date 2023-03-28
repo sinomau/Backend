@@ -1,6 +1,7 @@
 const socket = io();
 
 const containerProducts = document.getElementById("list");
+const containerMessages = document.getElementById("container-messages");
 
 socket.on("new-product", (data) => {
   console.log(data);
@@ -46,3 +47,16 @@ socket.on("update-product", (update) => {
         </ul>   `;
   });
 });
+
+//chat messages
+
+socket.on("new-message", (data) => {
+  console.log(data);
+  containerMessages.innerHTML += `
+  <div class="message">
+  <p><strong>${data.user}</strong> dice:</p>
+  <p>${data.message}</p>
+  </div>
+  `;
+});
+

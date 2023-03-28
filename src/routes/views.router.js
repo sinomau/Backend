@@ -1,7 +1,9 @@
 import { Router } from "express";
-import ProductManager from "../product.manager.js";
+import { productManager } from "../dao/index.js";
+import chatManager from "../dao/db-managers/chat.manager.js";
 
-const manager = new ProductManager("./src/products.json");
+const manager = new productManager();
+const managerChat = new chatManager();
 
 const viewer = Router();
 
@@ -13,6 +15,11 @@ viewer.get("/", async (req, res) => {
 viewer.get("/real-time-products", async (req, res) => {
   const products = await manager.getProducts();
   res.render("real_time_products", { products });
+});
+
+viewer.get("/chat", async (req, res) => {
+  const messages = await managerChat.getMessages();
+  res.render("chat", { messages });
 });
 
 export default viewer;

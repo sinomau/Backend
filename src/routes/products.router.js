@@ -1,7 +1,7 @@
 import { Router, json } from "express";
-import productManager from "../product.manager.js";
+import { productManager } from "../dao/index.js";
 
-const manager = new productManager("./src/products.json");
+const manager = new productManager();
 
 const productsRouter = Router();
 
@@ -26,7 +26,7 @@ productsRouter.get("/", async (req, res) => {
 productsRouter.get("/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
-    const getProductById = await manager.getProductById(parseInt(pid));
+    const getProductById = await manager.getProductById(pid);
     res.send({ status: "succes", payload: getProductById });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
@@ -45,24 +45,26 @@ productsRouter.post("/", async (req, res) => {
     thumbnail,
   } = req.body;
 
-  const addProduct = await manager.addProduct(
+  const addProduct = await manager.addProduct({
     title,
     description,
     code,
     price,
-    status,
+    status: true,
     stock,
     category,
-    thumbnail
-  );
-  res.json(addProduct);
+    thumbnail: "",
+  });
+
+  res.status(201).send({ status: "success", payload: addProduct });
+
   req.io.emit("new-product", req.body);
 });
 
 productsRouter.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const updateProduct = await manager.updateProduct(parseInt(id), req.body);
+    const updateProduct = await manager.updateProduct(id, req.body);
     res.send({ status: "success", payload: updateProduct });
     req.io.emit("update-product", req.body);
   } catch (err) {
@@ -73,8 +75,8 @@ productsRouter.put("/:id", async (req, res) => {
 productsRouter.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const idParsed = parseInt(id);
-    await manager.deleteProduct(idParsed);
+    console.log(id)
+    await manager.deleteProduct(id);
     const products = await manager.getProducts();
     req.io.emit("delete-product", products);
     res.send({ status: "succes", payload: "Producto eliminado" });
