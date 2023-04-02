@@ -1,5 +1,6 @@
 import { Router, json } from "express";
 import { productManager } from "../dao/index.js";
+import productModel from "../dao/models/products.model.js";
 
 const manager = new productManager();
 
@@ -9,15 +10,30 @@ productsRouter.use(json());
 
 productsRouter.get("/", async (req, res) => {
   try {
-    const products = await manager.getProducts();
-    const { limit } = req.query;
+    const title = req.query.title || "";
+    const limit = req.query.limit || 10;
+    const page = req.query.page || 1;
+    let sort = req.query.sort;
+    let sortKey = "price";
+    const filter = title ? { title: { $regex: title, $options: "i" } } : {};
 
-    if (limit) {
-      const limitedProducts = products.slice(0, limit);
-      return res.send({ status: "success", payload: limitedProducts });
-    } else {
-      res.send({ status: "success", payload: products });
+    if (sort === "desc") {
+      sort = -1;
     }
+    if (sort === "asc") {
+      sort = 1;
+    }
+
+    if (sort === undefined) {
+      sortKey = undefined;
+    }
+
+    const products = await productModel.paginate(filter, {
+      page: page,
+      limit: limit,
+      sort: { [sortKey]: sort },
+    });
+    res.send({ status: "success", payload: products });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
@@ -75,7 +91,7 @@ productsRouter.put("/:id", async (req, res) => {
 productsRouter.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id)
+    console.log(id);
     await manager.deleteProduct(id);
     const products = await manager.getProducts();
     req.io.emit("delete-product", products);

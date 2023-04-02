@@ -52,7 +52,7 @@ class productManager {
 
   async getProductById(id) {
     try {
-      console.log(id)
+      console.log(id);
       const prodFind = await productModel.findById(id).lean();
       return prodFind;
     } catch (err) {
@@ -60,35 +60,25 @@ class productManager {
     }
   }
 
-
-async updateProduct(id, product) {
-  try{
-    console.log(id)
-    const findAndUpdate = await productModel.findByIdAndUpdate(id, product);
-    return findAndUpdate;
-
-  }catch(err){
-    throw new Error("Product not updated");
+  async updateProduct(id, product) {
+    try {
+      console.log(id);
+      const findAndUpdate = await productModel.findByIdAndUpdate(id, product);
+      return findAndUpdate;
+    } catch (err) {
+      throw new Error("Product not updated");
+    }
   }
-}
 
-
-async deleteProduct(id) {
-  try{
-    console.log(id)
-    const findAndDelete = await productModel.findByIdAndDelete(id);
-    return findAndDelete;
-
-  }catch(err){
-    throw new Error("Product not deleted");
+  async deleteProduct(id) {
+    try {
+      console.log(id);
+      const findAndDelete = await productModel.findByIdAndDelete(id);
+      return findAndDelete;
+    } catch (err) {
+      throw new Error("Product not deleted");
+    }
   }
-}
-
-
-
-
-
-
 }
 
 export default productManager;

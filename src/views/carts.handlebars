@@ -1,0 +1,27 @@
+<div id="list">
+  <div>
+    <article class="article-container">
+      <form id="form-cartId" method="get">
+        <label for="input-CartId">Ingrese el ID del carrito</label>
+        <input type="text" id="input-CartId" name="cartId" />
+        <button type="submit" id="submit-id" class="btn btn-primary">Buscar
+          Carrito</button>
+      </form>
+    </article>
+  <h1>Detalle de carrito</h1>
+{{#if prodsInCart}}
+ <h1>Productos en carrito seleccionado</h1>
+{{#each prodsInCart}}
+<article>
+  <div>
+    <h5>Articulo: {{product.title}}</h5>
+    <p>Descripcion: {{product.description}}</p>
+    <p>Precio: {{product.price}}</p>
+    <p>Stock: {{product.stock}}</p>
+  </div>
+  </article>
+{{/each}}
+{{else}}
+  <p>No se ha podido encontrar el carrito seleccionado.</p>
+{{/if}}
+</div>

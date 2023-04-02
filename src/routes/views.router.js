@@ -1,25 +1,42 @@
-import { Router } from "express";
+import { Router, json } from "express";
 import { productManager } from "../dao/index.js";
-import chatManager from "../dao/db-managers/chat.manager.js";
+import { cartsManager } from "../dao/index.js";
+import productModel from "../dao/models/products.model.js";
 
-const manager = new productManager();
-const managerChat = new chatManager();
+const prodManager = new productManager();
+const cartManager = new cartsManager();
 
 const viewer = Router();
+viewer.use(json());
 
 viewer.get("/", async (req, res) => {
-  const products = await manager.getProducts();
+  const products = await prodManager.getProducts();
   res.render("home", { products });
 });
 
 viewer.get("/real-time-products", async (req, res) => {
-  const products = await manager.getProducts();
+  const products = await prodManager.getProducts();
   res.render("real_time_products", { products });
 });
 
-viewer.get("/chat", async (req, res) => {
-  const messages = await managerChat.getMessages();
-  res.render("chat", { messages });
+viewer.get("/products", async (req, res) => {
+  const { page } = req.query;
+  const products = await productModel.paginate(
+    {},
+    { limit: 3, lean: true, page: page ?? 1 }
+  );
+  res.render("products", { products });
+});
+
+viewer.get("/carts", async (req, res) => {
+  let cartId = req.query.cartId;
+  const carts = await cartManager.getCartProducts(cartId);
+  if (carts) {
+    const prodsInCart = carts.products;
+    res.render("carts", { prodsInCart });
+  } else {
+    res.render("carts", { prodsInCart: [] });
+  }
 });
 
 export default viewer;

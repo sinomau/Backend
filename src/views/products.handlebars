@@ -1,0 +1,32 @@
+<div id="list">
+  <div>
+    <h1>Productos</h1>
+    <div>
+      {{#if products.hasPrevPage}}
+        <a href="/products?page={{products.prevPage}}">Anterior</a>
+      {{/if}}
+      <span>Página {{products.page}} de {{products.totalPages}}</span>
+      {{#if products.hasNextPage}}
+        <a href="/products?page={{products.nextPage}}">Siguiente</a>
+      {{/if}}
+    </div>
+    {{#each products.docs}}
+      <article class="article-container">
+        <form action="submit" method="post">
+          <ul>
+            <li>Producto: {{this.title}}</li>
+            <li>Descripcion: {{this.description}}</li>
+            <li>Precio: {{this.price}}</li>
+            <li>Codigo: {{this.code}}</li>
+            <li>Stock: {{this.stock}}</li>
+            <button type="button" class="btn btn-primary" id="btn">Agregar al
+              carrito</button>
+          </ul>
+        </form>
+      </article>
+    {{/each}}
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>
