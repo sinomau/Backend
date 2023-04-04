@@ -45,27 +45,17 @@ class cartsManager {
         .findById(cartId)
         .populate("products.product");
 
-      const existProduct = findProduct.products.find(
-        (p) => p.productId === productId
+      const existingProductIndex = findProduct.products.findIndex(
+        (p) => p.product._id.toString() === productId
       );
 
-      let updateProduct;
-
-      if (existProduct) {
-        updateProduct = findProduct.products.map((p) => {
-          if (p.productId === productId) {
-            return {
-              ...p,
-              quantity: p.quantity + 1,
-            };
-          }
-        });
+      if (existingProductIndex !== -1) {
+        findProduct.products[existingProductIndex].quantity += 1;
       } else {
-        updateProduct = [...findProduct.products, { productId, quantity: 1 }];
+        findProduct.products.push({ product: productId, quantity: 1 });
       }
-      findProduct.products.push({ product: productId });
 
-      return findProduct.save();
+      return await findProduct.save();
     } catch (err) {
       throw new Error(err);
     }
@@ -73,12 +63,17 @@ class cartsManager {
 
   async deleteProductFromCart(cartId, productId) {
     const cart = await cartModel.findById(cartId);
+    console.log(cart);
     if (cart) {
       const productIndex = cart.products.findIndex(
-        (p) => p.productId === productId
+        (p) => p.product._id.toString() === productId
       );
+
       if (productIndex !== -1) {
-        cart.products.splice(productIndex, 1);
+        cart.products[productIndex].quantity -= 1;
+        if (cart.products[productIndex].quantity <= 0) {
+          cart.products.splice(productIndex, 1);
+        }
         await cart.save();
         return cart;
       }
@@ -113,7 +108,7 @@ class cartsManager {
 
   async deleteAllProductsFromCart(cartId) {
     try {
-      const findCart = await cartModel.findById(cartId);
+      const findCart = await cartModel.findByIdAndDelete(cartId);
       findCart.products = [];
       return findCart.save();
     } catch (err) {

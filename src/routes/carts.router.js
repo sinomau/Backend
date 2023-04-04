@@ -101,10 +101,10 @@ cartsRouter.put("/:cid/products/:pid", async (req, res) => {
 cartsRouter.delete("/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
-    let product = await cartManager.deleteAllProductsFromCart(cid);
+    let deleteCart = await cartManager.deleteAllProductsFromCart(cid);
     res.send({
       status: "success",
-      payload: product,
+      payload: deleteCart,
     });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
