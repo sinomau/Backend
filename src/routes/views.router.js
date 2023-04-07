@@ -10,10 +10,18 @@ const viewer = Router();
 viewer.use(json());
 
 viewer.get("/", async (req, res) => {
-  const products = await prodManager.getProducts();
-  res.render("home", { products });
+  res.render("login");
 });
 
+viewer.get("/signup", async (req, res) => {
+  res.render("signup");
+});
+
+viewer.get("/profile", async (req, res) => {
+  res.render("profile");
+});
+
+//view realtime products
 viewer.get("/real-time-products", async (req, res) => {
   const products = await prodManager.getProducts();
   res.render("real_time_products", { products });
@@ -21,11 +29,13 @@ viewer.get("/real-time-products", async (req, res) => {
 
 viewer.get("/products", async (req, res) => {
   const { page } = req.query;
+  const user = req.session.user;
+  const role = req.session.role;
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }
   );
-  res.render("products", { products });
+  res.render("products", { products, user, role });
 });
 
 viewer.get("/carts", async (req, res) => {

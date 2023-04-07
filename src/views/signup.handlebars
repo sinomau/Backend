@@ -1,0 +1,27 @@
+<h1>Registrate completando el formulario!</h1>
+<article>
+  <div>
+    <form action="/api/sessions/signup" method="post">
+      <label for="email">Email</label>
+      <input
+        type="text"
+        placeholder="Ingresa tu Email"
+        name="email"
+        required="true"
+      />
+      <br />
+      <label for="password">Password</label>
+      <input
+        type="password"
+        placeholder="Ingresa Contraseña"
+        name="password"
+        required="true"
+      />
+      <br />
+      <button type="submit">Registrarse</button>
+      {{#if error}}
+        <p>{{error}} <a href="/login">Iniciar sesión</a></p>
+      {{/if}}
+    </form>
+  </div>
+</article>
