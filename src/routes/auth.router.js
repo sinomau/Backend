@@ -9,8 +9,11 @@ router.post("/signup", async (req, res) => {
     const user = await userModel.findOne({ email: email });
     if (!user) {
       const newUser = await userModel.create({ email, password });
-
       req.session.user = newUser.email;
+      req.session.isAdmin = false
+            if (newUser.email.endsWith("@coder.com")) {
+                req.session.isAdmin = true
+            }
       res.redirect("/");
     } else {
       res.render("signup", {
