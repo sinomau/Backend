@@ -11,7 +11,7 @@ router.post("/signup", async (req, res) => {
       const newUser = await userModel.create({ email, password });
 
       req.session.user = newUser.email;
-      res.redirect("/login");
+      res.redirect("/");
     } else {
       res.render("signup", {
         error: "Usuario ya registrado,",
@@ -26,23 +26,32 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const getUser = await userModel.findOne({ email: email });
-    if (getUser.password === password) {
-      req.session.user = getUser.email;
 
-      if (getUser.email.endsWith("@coder.com")) {
-        req.session.role = "Admin";
-      } else {
-        req.session.role = "User";
-      }
-
-      res.redirect("/products");
-    } else {
+    if (!getUser) {
       res.render("login", { error: "Usuario o contraseña incorrectos" });
+    } else {
+      if (getUser.password === password) {
+        req.session.user = getUser.email;
+        if (getUser.email.endsWith("@coder.com")) {
+          req.session.role = "Admin";
+        } else {
+          req.session.role = "User";
+        }
+        res.redirect("/products");
+      } else {
+        res.render("login", { error: "Usuario o contraseña incorrectos" });
+      }
     }
   } catch (err) {
     console.log(err);
   }
 });
+
+
+
+
+
+
 
 router.post("/logout", async (req, res) => {
   req.session.destroy((error) => {
