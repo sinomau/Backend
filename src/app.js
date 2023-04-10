@@ -44,7 +44,7 @@ app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
 
 //fs connect
-const httpServer = app.listen(8080, () => {
+const httpServer = app.listen(process.env.PORT || 8080, () => {
   console.log("server listening on");
 });
 
