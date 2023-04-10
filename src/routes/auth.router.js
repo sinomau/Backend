@@ -11,7 +11,7 @@ router.post("/signup", async (req, res) => {
       const newUser = await userModel.create({ email, password });
 
       req.session.user = newUser.email;
-      res.redirect("/login");
+      res.redirect("/");
     } else {
       res.render("signup", {
         error: "Usuario ya registrado,",
