@@ -9,6 +9,13 @@ import { Server } from "socket.io";
 import mongoose from "mongoose";
 import session from "express-session";
 import mongoStore from "connect-mongo";
+import cookieParser from "cookie-parser";
+import passport from "passport";
+import { initializedPassport } from "./config/passport.config.js";
+
+
+
+
 
 //mongoDb connection
 mongoose
@@ -38,6 +45,14 @@ app.use(
   })
 );
 
+//passport
+initializedPassport()
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+
 //handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -59,6 +74,10 @@ app.use("/", (req, res, next) => {
   req.io = socketServer;
   next();
 });
+
+//cookieParser
+app.use(cookieParser());
+
 
 //routes
 app.use("/", viewsRouter);

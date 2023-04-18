@@ -21,6 +21,10 @@ viewer.get("/profile", async (req, res) => {
   res.render("profile");
 });
 
+viewer.get("/failure-signup", async (req, res) => {
+  res.render("failure-signup");
+});
+
 //view realtime products
 viewer.get("/real-time-products", async (req, res) => {
   const products = await prodManager.getProducts();
@@ -29,7 +33,7 @@ viewer.get("/real-time-products", async (req, res) => {
 
 viewer.get("/products", async (req, res) => {
   const { page } = req.query;
-  const user = req.session.user;
+  const user = req.session.user
   const role = req.session.role;
   const products = await productModel.paginate(
     {},
