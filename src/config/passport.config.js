@@ -1,9 +1,19 @@
 import passport from "passport";
-import GithubStrategy from "passport-github2";
 import LocalStrategy from "passport-local";
-
+import GithubStrategy from "passport-github2";
 import { userModel } from "../dao/models/user.model.js";
-import { createHash } from "../utils.js";
+import { createHash, isValidPassword } from "../utils.js";
+
+function showAlert(message, icon, confirmButtonText) {
+  return `<script>
+    Swal.fire({
+      icon: '${icon}',
+      title: '${message}',
+      showConfirmButton: true,
+      confirmButtonText: '${confirmButtonText}',
+    });
+  </script>`;
+}
 
 const initializedPassport = () => {
   passport.use(
@@ -11,23 +21,54 @@ const initializedPassport = () => {
     new LocalStrategy(
       {
         usernameField: "email",
-        passReqToCallback: true,
+        passreqToCallback: true,
       },
-      async (req, username, password, done) => {
+      async (username, password, done) => {
         try {
-          const { name, age } = req.body;
           const user = await userModel.findOne({ email: username });
           if (user) {
-            return done(null, false);
+            return done(null, false, { message: "Usuario ya existe" });
           }
-          //si no existe en la db
           const newUser = {
             email: username,
             password: createHash(password),
+            user: "User",
           };
-          
+
+          if (username.endsWith("@coder.com")) {
+            newUser.role = "Admin";
+          } else {
+            newUser.role = "User";
+          }
+
           const userCreated = await userModel.create(newUser);
           return done(null, userCreated);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
+  //estrategia login passport
+
+  passport.use(
+    "loginStrategy",
+    new LocalStrategy(
+      {
+        usernameField: "email",
+        passreqToCallback: true,
+      },
+      async (username, password, done) => {
+        try {
+          const user = await userModel.findOne({ email: username });
+          if (!user) {
+            return done(null, false, { message: "Usuario no encontrado" });
+          }
+          if (!isValidPassword(user, password)) {
+            return done(null, false, { message: "Password Incorrecta" });
+          }
+          return done(null, user);
         } catch (error) {
           return done(error);
         }
@@ -46,18 +87,20 @@ const initializedPassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          
           const userExists = await userModel.findOne({
             email: profile.username,
           });
           if (userExists) {
             return done(null, userExists);
           }
-          const newUser = {            
+          const newUser = {
             email: profile.username,
             password: createHash(profile.id),
+            role: "User",
           };
           const userCreated = await userModel.create(newUser);
+          console.log(userCreated);
+
           return done(null, userCreated);
         } catch (error) {
           return done(error);

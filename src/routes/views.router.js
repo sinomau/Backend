@@ -33,8 +33,8 @@ viewer.get("/real-time-products", async (req, res) => {
 
 viewer.get("/products", async (req, res) => {
   const { page } = req.query;
-  const user = req.session.user
-  const role = req.session.role;
+  const user = req.user.email;
+  const role = req.user.role;
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }
