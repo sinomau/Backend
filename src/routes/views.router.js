@@ -35,6 +35,7 @@ viewer.get("/products", async (req, res) => {
   const { page } = req.query;
   const user = req.user.email;
   const role = req.user.role;
+  console.log(role)
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }

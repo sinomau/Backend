@@ -32,7 +32,7 @@ const initializedPassport = () => {
           const newUser = {
             email: username,
             password: createHash(password),
-            user: "User",
+            role: "User",
           };
 
           if (username.endsWith("@coder.com")) {
@@ -99,7 +99,6 @@ const initializedPassport = () => {
             role: "User",
           };
           const userCreated = await userModel.create(newUser);
-          console.log(userCreated);
 
           return done(null, userCreated);
         } catch (error) {
