@@ -2,6 +2,23 @@
 <article>
   <div>
     <form action="/api/sessions/signup" method="post">
+      <label for="name">Nombre</label>
+      <input
+        type="text"
+        placeholder="Ingresa tu Nombre"
+        name="first_name"
+        required="true"
+      />
+      <br />
+      <label for="lastname">Apellido</label>
+      <input
+        type="text"
+        placeholder="Ingresa tu Apellido"
+        name="last_name"
+        required="true"
+      />
+      <br />
+
       <label for="email">Email</label>
       <input
         type="text"
@@ -25,4 +42,3 @@
     </form>
   </div>
 </article>
-

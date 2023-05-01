@@ -1,103 +1,86 @@
 import { Router } from "express";
-import { userModel } from "../dao/models/user.model.js";
+import { UserManagerMongo } from "../dao/db-managers/user.manager.js";
+import { UserModel } from "../dao/models/user.model.js";
 import { createHash, isValidPassword } from "../utils.js";
-import passport from "passport";
+import jwt from "jsonwebtoken";
+import { options } from "../config/options.js";
 
 const router = Router();
+const userManager = new UserManagerMongo();
 
-//signup por passport
-router.post(
-  "/signup",
-  passport.authenticate("signupStrategy", {
-    failureRedirect: "/api/sessions/failure-signup",
-    successRedirect: "/",
-  }),
-);
-
-//login por passport
-router.post(
-  "/login",
-  passport.authenticate("loginStrategy", {
-    failureRedirect: "/api/sessions/failure-login",
-    successRedirect: "/products",
-  })
-);
-
-//falla de registro
-router.get("/failure-signup", (req, res) => {
-  res.render("signup", { error: "Usuario ya existente" });
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await userManager.getUserByEmail(email);
+    if (user) {
+      if (isValidPassword(password, user)) {
+        const token = jwt.sign(
+          { first_name: user.first_name, email: user.email, role: user.role },
+          options.server.secretToken,
+          { expiresIn: "24h" }
+        );
+        res
+          .cookie(options.server.cookieToken, token, { httpOnly: true })
+          .redirect("/products");
+        return; // Evita enviar otra respuesta HTTP
+      } else {
+        res.render("login", { error: "Usuario o contraseña incorrectos" });
+        return; // Evita ejecutar el siguiente código
+      }
+    } else {
+      res.render("login", { error: "Usuario no registrado, registrarse " });
+      return; // Evita ejecutar el siguiente código
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error al loguearse" });
+    return; // Evita ejecutar el siguiente código
+  }
 });
 
-//falla de login
-router.get("/failure-login", (req, res) => {
-  res.render("login", { error: "Usuario o contraseña incorrectos" });
+router.post("/signup", async (req, res) => {
+  try {
+    const { first_name, last_name, email, password } = req.body;
+    const user = await userManager.getUserByEmail(email);
+    if (!user) {
+      let role = "user";
+      if (email.endsWith("@coder.com")) {
+        role = "admin";
+      }
+      const newUser = {
+        first_name,
+        last_name,
+        email,
+        password: createHash(password),
+        role,
+      };
+      const userCreated = await userManager.addUser(newUser);
+      const token = jwt.sign(
+        {
+          first_name: userCreated.first_name,
+          email: userCreated.email,
+          role: userCreated.role,
+        },
+        options.server.secretToken,
+        { expiresIn: "24h" }
+      );
+      res
+        .cookie(options.server.cookieToken, token, { httpOnly: true })
+        .redirect("/products");
+      return; // Evita ejecutar el siguiente código
+    } else {
+      res.render("signup", { error: "Usuario ya registrado" });
+      return; // Evita ejecutar el siguiente código
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    return; // Evita ejecutar el siguiente código
+  }
 });
 
-//reg por github
-router.get("/github", passport.authenticate("githubSignup"));
-//callback de github
-router.get(
-  "/github-callback",
-  passport.authenticate("githubSignup", {
-    failureRedirect: "/api/sessions/failure-signup",
-    successRedirect: "/products",
-  }),
-);
-
-// router.post("/signup", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const user = await userModel.findOne({ email: email });
-//     if (!user) {
-//       const newUser = await userModel.create({
-//         email,
-//         password: createHash(password),
-//       });
-//       req.session.user = newUser.email;
-//       req.session.isAdmin = false;
-//       if (newUser.email.endsWith("@coder.com")) {
-//         req.session.isAdmin = true;
-//       }
-//       res.redirect("/");
-//     } else {
-//       res.render("signup", {
-//         error: "Usuario ya registrado,",
-//       });
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const getUser = await userModel.findOne({ email: email });
-
-//     if (!getUser) {
-//       res.render("login", { error: "Usuario o contraseña incorrectos" });
-//     } else {
-//       if (isValidPassword(getUser, password)) {
-//         req.session.user = getUser.email;
-//         if (getUser.email.endsWith("@coder.com")) {
-//           req.session.role = "Admin";
-//         } else {
-//           req.session.role = "User";
-//         }
-//         res.redirect("/products");
-//       } else {
-//         res.render("login", { error: "Usuario o contraseña incorrectos" });
-//       }
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-router.post("/logout", async (req, res) => {
-  req.session.destroy((error) => {
-    if (error) return res.send("La sesion no pudo cerrase");
-    res.redirect("/");
+router.post("/logout", (req, res) => {
+  req.logout(() => {
+    res.clearCookie(options.server.cookieToken).redirect("/");
   });
 });
 

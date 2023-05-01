@@ -2,6 +2,7 @@ import { Router, json } from "express";
 import { productManager } from "../dao/index.js";
 import { cartsManager } from "../dao/index.js";
 import productModel from "../dao/models/products.model.js";
+import passport from "passport";
 
 const prodManager = new productManager();
 const cartManager = new cartsManager();
@@ -31,7 +32,7 @@ viewer.get("/real-time-products", async (req, res) => {
   res.render("real_time_products", { products });
 });
 
-viewer.get("/products", async (req, res) => {
+viewer.get("/products",passport.authenticate("authJWT",{session:false}), async (req, res) => {
   const { page } = req.query;
   const user = req.user.email;
   const role = req.user.role;
@@ -52,5 +53,14 @@ viewer.get("/carts", async (req, res) => {
     res.render("carts", { prodsInCart: [] });
   }
 });
+
+
+viewer.get("/current", passport.authenticate("authJWT",{session:false}), async (req, res) => {
+if(req.user){
+  return res.send({user:req.user});
+}
+res.send({message:"Usuario no logueado"});
+})
+
 
 export default viewer;
