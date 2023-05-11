@@ -1,30 +1,22 @@
 import express from "express";
-import productsRouter from "./routes/products.router.js";
-import cartsRouter from "./routes/carts.router.js";
-import viewsRouter from "./routes/views.router.js";
-import { authRouter } from "./routes/auth.router.js";
+import productsRouter from "./routes/products.routes.js";
+import cartsRouter from "./routes/cart.routes.js";
+import viewsRouter from "./routes/views.routes.js";
+import { authRouter } from "./routes/auth.routes.js";
 import __dirname from "./utils.js ";
 import { engine } from "express-handlebars";
 import { Server } from "socket.io";
-import mongoose from "mongoose";
 import session from "express-session";
 import mongoStore from "connect-mongo";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import { initializedPassport } from "./config/passport.config.js";
+import { dbConnection } from "./config/dbConnection.js";
+import { options } from "./config/options.js";
+import { ChatManagerMongo } from "./dao/db-managers/chat.manager.js";
+import { ChatModel } from "./dao/models/chat.model.js";
 
-
-
-
-
-//mongoDb connection
-mongoose
-  .connect(
-    "mongodb+srv://sinopolimauro:Mipassword123@codercluster.vvb9tqq.mongodb.net/ecommerce?retryWrites=true&w=majority"
-  )
-  .then((connect) => {
-    console.log("Conectado a MongoDB");
-  });
+dbConnection();
 
 //middlewares
 const app = express();
@@ -36,22 +28,18 @@ app.use(express.static(__dirname + "/../public"));
 app.use(
   session({
     store: mongoStore.create({
-      mongoUrl:
-        "mongodb+srv://sinopolimauro:Mipassword123@codercluster.vvb9tqq.mongodb.net/ecommerce?retryWrites=true&w=majority",
+      mongoUrl: options.mongoDB.url,
     }),
-    secret: "claveSecreta",
+    secret: options.server.secretSession,
     resave: true,
     saveUninitialized: true,
   })
 );
 
 //passport
-initializedPassport()
+initializedPassport();
 app.use(passport.initialize());
 app.use(passport.session());
-
-
-
 
 //handlebars
 app.engine("handlebars", engine());
@@ -59,9 +47,11 @@ app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
 
 //fs connect
-const httpServer = app.listen(process.env.PORT || 8080, () => {
-  console.log("server listening on");
-});
+export const port = options.server.port;
+
+const httpServer = app.listen(port, () =>
+  console.log(`Server listening on port ${port}`)
+);
 
 const socketServer = new Server(httpServer);
 
@@ -78,9 +68,26 @@ app.use("/", (req, res, next) => {
 //cookieParser
 app.use(cookieParser());
 
-
 //routes
 app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/sessions", authRouter);
+
+//chat
+const chatManager = new ChatManagerMongo(ChatModel);
+
+socketServer.on("connection", async (socketConnected) => {
+  console.log(`Nuevo cliente conectado ${socketConnected.id}`);
+  const messages = await chatManager.getMessages();
+  socketServer.emit("msgHistory", messages);
+  //capturamos un evento del socket del cliente
+  socketConnected.on("message", async (data) => {
+    //recibimos el msg del cliente y lo guardamos en el servidor con el id del socket.
+    await chatManager.addMessage(data);
+    const messages = await chatManager.getMessages();
+    // messages.push({socketId: socketConnected.id, message: data});
+    //Enviamos todos los mensajes a todos los clientes
+    socketServer.emit("msgHistory", messages);
+  });
+});

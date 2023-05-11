@@ -52,7 +52,7 @@ class productManager {
 
   async getProductById(id) {
     try {
-      console.log(id);
+      console.log(id)
       const prodFind = await productModel.findById(id).lean();
       return prodFind;
     } catch (err) {

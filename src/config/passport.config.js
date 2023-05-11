@@ -4,16 +4,7 @@ import GithubStrategy from "passport-github2";
 import { userModel } from "../dao/models/user.model.js";
 import { createHash, isValidPassword } from "../utils.js";
 
-function showAlert(message, icon, confirmButtonText) {
-  return `<script>
-    Swal.fire({
-      icon: '${icon}',
-      title: '${message}',
-      showConfirmButton: true,
-      confirmButtonText: '${confirmButtonText}',
-    });
-  </script>`;
-}
+
 
 const initializedPassport = () => {
   passport.use(

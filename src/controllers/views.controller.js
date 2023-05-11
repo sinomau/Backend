@@ -9,29 +9,33 @@ const cartManager = new cartsManager();
 const viewer = Router();
 viewer.use(json());
 
-viewer.get("/", async (req, res) => {
+export const chatViewController = async (req, res) => {
+  res.render("chat");
+};
+
+export const loginViewController = async (req, res) => {
   res.render("login");
-});
+};
 
-viewer.get("/signup", async (req, res) => {
+export const signupViewController = async (req, res) => {
   res.render("signup");
-});
+};
 
-viewer.get("/profile", async (req, res) => {
+export const profileViewController = async (req, res) => {
   res.render("profile");
-});
+};
 
-viewer.get("/failure-signup", async (req, res) => {
+export const failureSignupViewController = async (req, res) => {
   res.render("failure-signup");
-});
+};
 
 //view realtime products
-viewer.get("/real-time-products", async (req, res) => {
+export const realTimeProductsViewController = async (req, res) => {
   const products = await prodManager.getProducts();
   res.render("real_time_products", { products });
-});
+};
 
-viewer.get("/products", async (req, res) => {
+export const productsViewController = async (req, res) => {
   const { page } = req.query;
   const user = req.user.email;
   const role = req.user.role;
@@ -40,17 +44,16 @@ viewer.get("/products", async (req, res) => {
     { limit: 3, lean: true, page: page ?? 1 }
   );
   res.render("products", { products, user, role });
-});
+};
 
-viewer.get("/carts", async (req, res) => {
-  let cartId = req.query.cartId;
-  const carts = await cartManager.getCartProducts(cartId);
-  if (carts) {
-    const prodsInCart = carts.products;
-    res.render("carts", { prodsInCart });
-  } else {
-    res.render("carts", { prodsInCart: [] });
-  }
-});
+export const cartsViewController = async (req, res) => {
+    let cartId = req.query.cartId;
+    const carts = await cartManager.getCartProducts(cartId);
+    if (carts) {
+        const prodsInCart = carts.products;
+        res.render("carts", { prodsInCart });
+    } else {
+        res.render("carts", { prodsInCart: [] });
+    }
+    }
 
-export default viewer;
