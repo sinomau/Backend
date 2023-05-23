@@ -1,5 +1,8 @@
 import { Router, json } from "express";
 import { cartsManager } from "../dao/index.js";
+import productModel from "../dao/models/products.model.js";
+import { v4 as uuidv4 } from "uuid";
+
 
 const cartManager = new cartsManager();
 
@@ -63,7 +66,6 @@ export const addProductArrayToCartController = async (req, res) => {
   try {
     const { cid } = req.params;
     const productsObjet = req.body;
-    console.log(productsObjet);
     let product = await cartManager.addProductsArray(cid, productsObjet);
     res.send({ status: "success", payload: product });
   } catch (err) {
@@ -75,7 +77,6 @@ export const updateQuantityController = async (req, res) => {
   try {
     const { cid, pid } = req.params;
     const { quantity } = req.body;
-
     let product = await cartManager.updateQuantity(cid, pid, quantity);
     res.send({ status: "success", payload: product });
   } catch (err) {
@@ -95,5 +96,68 @@ export const deleteCartController = async (req, res) => {
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
+export const purchaseCartController = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const cart = await cartManager.getCartProducts(cid);
+    if (!cart) {
+      return res
+        .status(404)
+        .send({ status: "error", error: "Carrito No encontrado" });
+    } else {
+      if (!cart.products.length) {
+        return res
+          .status(404)
+          .send({ status: "error", error: "Carrito esta vacio!" });
+      }
 
+      let ticketsProducts = [];
+      let rejectedProducts = [];
+
+      for (let i = 0; i < cart.products.length; i++) {
+        const cartProduct = cart.products[i];
+        const productDB = await productModel.findById(cartProduct.product._id);
+        if (productDB.stock >= cartProduct.quantity) {
+          productDB.stock -= cartProduct.quantity;
+          await productDB.save();
+          ticketsProducts.push(cartProduct);
+        } else {
+          rejectedProducts.push(cartProduct);
+        }
+      }
+
+      if (rejectedProducts.length) {
+        return res.status(404).send({
+          status: "error",
+          error: "No hay stock suficiente para los siguientes productos",
+          payload: rejectedProducts,
+        });
+      }
+
+      const newTicket = {
+        code: uuidv4(),
+        purchase_datetime: new Date(),
+        amount: ticketsProducts.reduce(
+          (acc, curr) => acc + curr.quantity * curr.product.price,
+          0
+        ),
+        purchaser: req.user.email,
+      };
+
+      const ticket = await cartManager.createTicket(newTicket);
+
+      for (let i = 0; i < ticketsProducts.length; i++) {
+        const cartProduct = ticketsProducts[i];
+        await cartManager.deleteProductFromCart(cid, cartProduct.product._id);
+
+      }
+
+      res.send({ status: "success", payload: ticket });
+    }
+    
+   
+  } catch (err) {
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
+};
 export default cartsRouter;

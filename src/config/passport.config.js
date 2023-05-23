@@ -3,8 +3,7 @@ import LocalStrategy from "passport-local";
 import GithubStrategy from "passport-github2";
 import { userModel } from "../dao/models/user.model.js";
 import { createHash, isValidPassword } from "../utils.js";
-
-
+import cartsModel from "../dao/models/carts.model.js";
 
 const initializedPassport = () => {
   passport.use(
@@ -12,9 +11,9 @@ const initializedPassport = () => {
     new LocalStrategy(
       {
         usernameField: "email",
-        passreqToCallback: true,
+        passReqToCallback: true,
       },
-      async (username, password, done) => {
+      async (req, username, password, done) => {
         try {
           const user = await userModel.findOne({ email: username });
           if (user) {
@@ -22,17 +21,20 @@ const initializedPassport = () => {
           }
           const newUser = {
             email: username,
+            first_name: req.body.first_name ? req.body.first_name : "NoName",
+            last_name: req.body.last_name ? req.body.last_name : "NoLastName",
             password: createHash(password),
-            role: "User",
+            role: "user",
           };
 
           if (username.endsWith("@coder.com")) {
-            newUser.role = "Admin";
+            newUser.role = "admin";
           } else {
-            newUser.role = "User";
+            newUser.role = "user";
           }
 
           const userCreated = await userModel.create(newUser);
+
           return done(null, userCreated);
         } catch (error) {
           return done(error);
@@ -48,9 +50,9 @@ const initializedPassport = () => {
     new LocalStrategy(
       {
         usernameField: "email",
-        passreqToCallback: true,
+        passReqToCallback: true,
       },
-      async (username, password, done) => {
+      async (req, username, password, done) => {
         try {
           const user = await userModel.findOne({ email: username });
           if (!user) {
@@ -59,6 +61,11 @@ const initializedPassport = () => {
           if (!isValidPassword(user, password)) {
             return done(null, false, { message: "Password Incorrecta" });
           }
+
+          const cart = await cartsModel.create({ user: user._id });
+          user.cart = cart;
+          await user.save();
+
           return done(null, user);
         } catch (error) {
           return done(error);
@@ -86,10 +93,16 @@ const initializedPassport = () => {
           }
           const newUser = {
             email: profile.username,
+            first_name: profile.first_name ? profile.first_name : "NoName",
+            last_name: profile.last_name ? profile.last_name : "NoLastName",
             password: createHash(profile.id),
-            role: "User",
+            role: "user",
           };
           const userCreated = await userModel.create(newUser);
+
+          const cart = await cartsModel.create({ user: userCreated._id });
+          userCreated.cart = cart;
+          await userCreated.save();
 
           return done(null, userCreated);
         } catch (error) {

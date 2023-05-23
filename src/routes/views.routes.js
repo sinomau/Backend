@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { checkRole } from "../middlewares/auth.js";
 import {
   chatViewController,
   loginViewController,
@@ -12,22 +13,22 @@ import {
 
 const viewsRouter = Router();
 
-viewsRouter.get("/chat", chatViewController);
+viewsRouter.get("/chat",checkRole(["user"]), chatViewController);
 
 viewsRouter.get("/", loginViewController);
 
 viewsRouter.get("/signup", signupViewController);
 
-viewsRouter.get("/profile", profileViewController);
+viewsRouter.get("/profile",checkRole(["user","admin"]), profileViewController);
 
 viewsRouter.get("/failure-signup", failureSignupViewController);
 
 //view realtime products
 
-viewsRouter.get("/real-time-products", realTimeProductsViewController);
+viewsRouter.get("/real-time-products",checkRole(["user","admin"]), realTimeProductsViewController);
 
-viewsRouter.get("/products", productsViewController);
+viewsRouter.get("/products",checkRole(["user","admin"]), productsViewController);
 
-viewsRouter.get("/carts", cartsViewController);
+viewsRouter.get("/carts",checkRole(["user","admin"]), cartsViewController);
 
 export default viewsRouter;

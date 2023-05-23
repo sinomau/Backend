@@ -22,7 +22,10 @@ export const signupViewController = async (req, res) => {
 };
 
 export const profileViewController = async (req, res) => {
-  res.render("profile");
+  const user = req.user.email;
+  const role = req.user.role;
+  const cart = req.user.cart;
+  res.render("profile", { user, role, cart });
 };
 
 export const failureSignupViewController = async (req, res) => {
@@ -39,21 +42,23 @@ export const productsViewController = async (req, res) => {
   const { page } = req.query;
   const user = req.user.email;
   const role = req.user.role;
+  const cart = req.user.cart;
+  console.log(cart);
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }
   );
-  res.render("products", { products, user, role });
+  res.render("products", { products, user, role, cart });
 };
 
 export const cartsViewController = async (req, res) => {
-    let cartId = req.query.cartId;
-    const carts = await cartManager.getCartProducts(cartId);
-    if (carts) {
-        const prodsInCart = carts.products;
-        res.render("carts", { prodsInCart });
-    } else {
-        res.render("carts", { prodsInCart: [] });
-    }
-    }
-
+  let cartId = req.query.cartId;
+  const carts = await cartManager.getCartProducts(cartId);
+  if (carts) {
+    const prodsInCart = carts.products;
+    console.log(prodsInCart);
+    res.render("carts", { prodsInCart });
+  } else {
+    res.render("carts", { prodsInCart: [] });
+  }
+};

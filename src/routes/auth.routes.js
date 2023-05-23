@@ -10,6 +10,7 @@ import {
   loginGithubCallbackController,
   githubRedirectController,
   logoutController,
+  getProfileController,
 } from "../controllers/auth.controller.js";
 
 const router = Router();
@@ -27,5 +28,7 @@ router.get("/github", githubPassportController,);
 router.get("/github-callback",loginGithubCallbackController,githubRedirectController ),
 
 router.post("/logout", logoutController);
+
+router.get("/profile", getProfileController);
 
 export { router as authRouter };

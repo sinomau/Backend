@@ -1,5 +1,6 @@
 import __dirname from "../../utils.js";
 import cartModel from "../models/carts.model.js";
+import { ticketsModel } from "../models/ticket.models.js";
 
 class cartsManager {
   #path = __dirname + "/dao/file-managers/files/carts.json";
@@ -11,7 +12,7 @@ class cartsManager {
 
   async getCarts() {
     try {
-      const carts = await cartModel.find().lean();
+      const carts = await cartModel.find().lean().populate("products.product");
       return carts;
     } catch (e) {
       console.log(e);
@@ -41,29 +42,34 @@ class cartsManager {
   }
   async addProductToCart(cartId, productId) {
     try {
-      const findProduct = await cartModel
+      const cart = await cartModel
         .findById(cartId)
         .populate("products.product");
-
-      const existingProductIndex = findProduct.products.findIndex(
-        (p) => p.product._id.toString() === productId
+      if (!cart) {
+        throw new Error("Carrito no encontrado");
+      }
+      const productIndex = cart.products.findIndex(
+        (p) => p.product._id.toString() === productId.toString()
       );
 
-      if (existingProductIndex !== -1) {
-        findProduct.products[existingProductIndex].quantity += 1;
+      if (productIndex === -1) {
+        // El producto no existe en el carrito, agregarlo con cantidad inicial 1
+        cart.products.push({
+          product: productId,
+          quantity: 1,
+        });
       } else {
-        findProduct.products.push({ product: productId, quantity: 1 });
+        // El producto ya existe en el carrito, incrementar la cantidad en 1
+        cart.products[productIndex].quantity += 1;
       }
 
-      return await findProduct.save();
+      return cart.save();
     } catch (err) {
       throw new Error(err);
     }
   }
-
   async deleteProductFromCart(cartId, productId) {
     const cart = await cartModel.findById(cartId);
-    console.log(cart);
     if (cart) {
       const productIndex = cart.products.findIndex(
         (p) => p.product._id.toString() === productId
@@ -90,7 +96,7 @@ class cartsManager {
     }
   }
 
-  async updateQuantity(cartId, productId, quantity) {
+  async updateQuantity(cartId, productId) {
     try {
       const findCart = await cartModel.findById(cartId);
       const product = findCart.products.find((p) => p.productId === productId);
@@ -111,6 +117,16 @@ class cartsManager {
       const findCart = await cartModel.findByIdAndDelete(cartId);
       findCart.products = [];
       return findCart.save();
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async createTicket(ticket) {
+    try {
+      const newTicket = await ticketsModel.create(ticket);
+      newTicket.save();
+
     } catch (err) {
       throw new Error(err);
     }

@@ -7,6 +7,8 @@
     </form>
   </div>
   <div>
+    <h1>cart: {{cart}}</h1>
+    </h1>
     <h1>Productos</h1>
     <div>
       {{#if products.hasPrevPage}}
@@ -19,16 +21,18 @@
     </div>
     {{#each products.docs}}
       <article class="article-container">
-        <form action="submit" method="post">
+        <h1>Cart:{{../cart}}</h1>
+        <h1>Producto:{{_id}}</h1>
+        <form action="/api/carts/{{../cart}}/products/{{this._id}}" method="POST">
           <ul>
+            <li>Id: {{this._id}}</li>
             <li>Producto: {{this.title}}</li>
             <li>Descripcion: {{this.description}}</li>
             <li>Precio: {{this.price}}</li>
             <li>Codigo: {{this.code}}</li>
             <li>Stock: {{this.stock}}</li>
-            <button type="button" class="btn btn-primary" id="btn">Agregar al
-              carrito</button>
           </ul>
+          <button type="submit" class="addCartBtn" id="btn">Agregar al carrito</button>
         </form>
       </article>
     {{/each}}

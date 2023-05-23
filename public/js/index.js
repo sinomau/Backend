@@ -1,5 +1,4 @@
 const socket = io();
-
 const containerProducts = document.getElementById("list");
 const containerCarts = document.getElementById("cart");
 
@@ -47,3 +46,5 @@ socket.on("update-product", (update) => {
         </ul>   `;
   });
 });
+
+

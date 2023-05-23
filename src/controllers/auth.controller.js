@@ -51,3 +51,6 @@ export const logoutController = (req, res) => {
   });
 };
 
+export const getProfileController = async (req, res) => {
+  res.render("profile");
+};
