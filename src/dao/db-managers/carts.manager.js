@@ -69,21 +69,29 @@ class cartsManager {
     }
   }
   async deleteProductFromCart(cartId, productId) {
-    const cart = await cartModel.findById(cartId);
-    if (cart) {
+    try {
+      const cart = await cartModel
+        .findById(cartId)
+        .populate("products.product");
+      if (!cart) {
+        throw new Error("Carrito no encontrado");
+      }
       const productIndex = cart.products.findIndex(
-        (p) => p.product._id.toString() === productId
+        (p) => p.product._id.toString() === productId.toString()
       );
 
-      if (productIndex !== -1) {
-        cart.products[productIndex].quantity -= 1;
-        if (cart.products[productIndex].quantity <= 0) {
-          cart.products.splice(productIndex, 1);
-        }
-        await cart.save();
-        return cart;
+      if (productIndex === -1) {
+        return null;
+      } else {
+        // El producto ya existe en el carrito, incrementar la cantidad en 1
+        cart.products.splice(productIndex, 1);
       }
+
+      return cart.save();
+    } catch (err) {
+      throw new Error(err);
     }
+   
   }
 
   async putProductsArray(cartId, productsObjet) {

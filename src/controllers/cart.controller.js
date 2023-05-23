@@ -3,7 +3,6 @@ import { cartsManager } from "../dao/index.js";
 import productModel from "../dao/models/products.model.js";
 import { v4 as uuidv4 } from "uuid";
 
-
 const cartManager = new cartsManager();
 
 const cartsRouter = Router();
@@ -126,14 +125,6 @@ export const purchaseCartController = async (req, res) => {
         }
       }
 
-      if (rejectedProducts.length) {
-        return res.status(404).send({
-          status: "error",
-          error: "No hay stock suficiente para los siguientes productos",
-          payload: rejectedProducts,
-        });
-      }
-
       const newTicket = {
         code: uuidv4(),
         purchase_datetime: new Date(),
@@ -149,13 +140,20 @@ export const purchaseCartController = async (req, res) => {
       for (let i = 0; i < ticketsProducts.length; i++) {
         const cartProduct = ticketsProducts[i];
         await cartManager.deleteProductFromCart(cid, cartProduct.product._id);
-
       }
+
+      if (rejectedProducts.length) {
+        return res.status(404).send({
+          status: "error",
+          error: "No hay stock suficiente para los siguientes productos",
+          payload: rejectedProducts,
+        });
+      }
+
+      
 
       res.send({ status: "success", payload: ticket });
     }
-    
-   
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }

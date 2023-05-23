@@ -18,7 +18,7 @@ cartsRouter.post("/", addCartController);
 
 cartsRouter.get("/", getCartsController);
 
-cartsRouter.get("/:cid/products", getCartProductsController);
+cartsRouter.get("/:cid", getCartProductsController);
 
 cartsRouter.post("/:cid/products/:pid",checkRole(["user"]), addProductToCartController);
 
