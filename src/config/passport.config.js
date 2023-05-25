@@ -34,6 +34,9 @@ const initializedPassport = () => {
           }
 
           const userCreated = await userModel.create(newUser);
+          const cart = await cartsModel.create({ user: userCreated._id });
+          userCreated.cart = cart;
+          await userCreated.save();
 
           return done(null, userCreated);
         } catch (error) {
@@ -61,10 +64,6 @@ const initializedPassport = () => {
           if (!isValidPassword(user, password)) {
             return done(null, false, { message: "Password Incorrecta" });
           }
-
-          const cart = await cartsModel.create({ user: user._id });
-          user.cart = cart;
-          await user.save();
 
           return done(null, user);
         } catch (error) {

@@ -1,33 +1,21 @@
-import { productManager } from "../dao/index.js";
-import productModel from "../dao/models/products.model.js";
-
-const manager = new productManager();
+import {
+  getProductService,
+  getProductByIdService,
+  addProductService,
+  updateProductService,
+  deleteProductService,
+  getProductsByCategoryService,
+  orderProductByPriceService,
+} from "../service/products.service.js";
 
 export const getProductsController = async (req, res) => {
   try {
-    const title = req.query.title || "";
-    const limit = req.query.limit || 10;
-    const page = req.query.page || 1;
-    let sort = req.query.sort;
-    let sortKey = "price";
-    const filter = title ? { title: { $regex: title, $options: "i" } } : {};
-
-    if (sort === "desc") {
-      sort = -1;
+    const products = await getProductService();
+    const { limit } = req.query;
+    if (limit) {
+      products.length = limit;
+      return res.send({ status: "success", payload: products });
     }
-    if (sort === "asc") {
-      sort = 1;
-    }
-
-    if (sort === undefined) {
-      sortKey = undefined;
-    }
-
-    const products = await productModel.paginate(filter, {
-      page: page,
-      limit: limit,
-      sort: { [sortKey]: sort },
-    });
     res.send({ status: "success", payload: products });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
@@ -36,63 +24,92 @@ export const getProductsController = async (req, res) => {
 
 export const getProductByIdController = async (req, res) => {
   try {
-    const { pid } = req.params;
-    console.log(pid)
-    const getProductById = await manager.getProductById(pid);
-    res.send({ status: "succes", payload: getProductById });
+    let pid = req.params.pid;
+    const product = await getProductByIdService(pid);
+    res.send({ status: "success", payload: product });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
 
 export const addProductController = async (req, res) => {
-    const {
-    title,
-    description,
-    code,
-    price,
-    status,
-    stock,
-    category,
-    thumbnail,
-  } = req.body;
-
-  const addProduct = await manager.addProduct({
-    title,
-    description,
-    code,
-    price,
-    status: true,
-    stock,
-    category,
-    thumbnail: "",
-  });
-
-  res.status(201).send({ status: "success", payload: addProduct });
-
-  req.io.emit("new-product", req.body);
-};
-
-export const updateProductController = async (req, res) => {
-try {
-    const { id } = req.params;
-    const updateProduct = await manager.updateProduct(id, req.body);
-    res.send({ status: "success", payload: updateProduct });
-    req.io.emit("update-product", req.body);
+  try {
+    const { code, title, description, price, thumbnail, stock, category } =
+      req.body;
+    const product = await addProductService({
+      code,
+      title,
+      description,
+      price,
+      thumbnail,
+      stock,
+      category,
+    });
+    res.send({ status: "success", payload: product });
   } catch (err) {
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
 
-export const deleteProductController = async (req, res) => {
-    try {
+export const updateProductController = async (req, res) => {
+  try {
     const { id } = req.params;
-    console.log(id);
-    await manager.deleteProduct(id);
-    const products = await manager.getProducts();
-    req.io.emit("delete-product", products);
-    res.send({ status: "succes", payload: "Producto eliminado" });
+    const { code, title, description, price, thumbnail, stock, category } =
+      req.body;
+
+    const product = await updateProductService(id, {
+      code,
+      title,
+      description,
+      price,
+      thumbnail,
+      stock,
+      category,
+    });
+    res.send({ status: "success", payload: product });
   } catch (err) {
+    console.log(err);
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
+};
+
+export const deleteProductController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await deleteProductService(id);
+    res.send({ status: "success", payload: product });
+  } catch (err) {
+    console.log(err);
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
+};
+
+export const getProductsByCategoryController = async (req, res) => {
+  try {
+    let cat = req.params.cat;
+    const products = await getProductsByCategoryService(cat);
+    res.send({ status: "success", payload: products });
+  } catch (err) {
+    console.log(err);
+
+    res.status(404).send({ status: "error", error: `${err}` });
+  }
+};
+export const orderProductByPriceController = async (req, res) => {
+  try {
+    let num = req.params.num;
+    if (num === "asc") {
+      const products = await orderProductByPriceService(1);
+      res.send({ status: "ok", payload: products });
+    } else if (num === "desc") {
+      const products = await orderProductByPriceService(-1);
+      res.send({ status: "ok", payload: products });
+    } else {
+      res.send({ status: "ok", payload: await getProductService() });
+    }
+  } catch (err) {
+    console.log(err);
+
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };

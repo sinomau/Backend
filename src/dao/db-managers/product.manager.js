@@ -7,25 +7,23 @@ class productManager {
   }
 
   async addProduct({
+    code,
     title,
     description,
-    code,
     price,
-    status,
+    thumbnail,
     stock,
     category,
-    thumbnail,
   }) {
     try {
       const product = {
+        code,
         title,
         description,
-        code,
         price,
-        status,
+        thumbnail,
         stock,
         category,
-        thumbnail,
       };
       const products = await productModel.find().lean();
       const codeRepeat = products.find((p) => p.code === code);
@@ -36,6 +34,7 @@ class productManager {
       const result = await productModel.create(product);
       return result;
     } catch (err) {
+      console.log(err);
       throw new Error("Product not added");
     }
   }
@@ -52,33 +51,56 @@ class productManager {
 
   async getProductById(id) {
     try {
-      console.log(id)
       const prodFind = await productModel.findById(id).lean();
       return prodFind;
     } catch (err) {
-      throw new Error("Product not added");
+      throw new Error("Product not found");
     }
   }
 
   async updateProduct(id, product) {
     try {
-      console.log(id);
       const findAndUpdate = await productModel.findByIdAndUpdate(id, product);
+      findAndUpdate.save();
       return findAndUpdate;
     } catch (err) {
+      console.log(err);
       throw new Error("Product not updated");
     }
   }
 
   async deleteProduct(id) {
     try {
-      console.log(id);
-      const findAndDelete = await productModel.findByIdAndDelete(id);
-      return findAndDelete;
+      const deletedProduct = await productModel.findByIdAndDelete(id);
+      if (!deletedProduct) {
+        throw new Error("Product not found");
+      }
+      return deletedProduct;
     } catch (err) {
       throw new Error("Product not deleted");
     }
   }
-}
 
+  async getProductsByCategory(category) {
+    try {
+      const products = await productModel.find({ category: category }).lean();
+      return products;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Error al buscar productos por categoría");
+    }
+  }
+
+  async orderProductByPrice(num) {
+    try {
+      const products = await productModel.aggregate([
+        { $sort: { price: num } },
+      ]);
+      return products;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Error al ordenar productos por precio");
+    }
+  }
+}
 export default productManager;

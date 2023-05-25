@@ -1,5 +1,8 @@
 import __dirname from "../../utils.js";
 import cartModel from "../models/carts.model.js";
+import { v4 as uuidv4 } from "uuid";
+import productsModel from "../models/products.model.js";
+import ticketsManager from "./tickets.manager.js";
 import { ticketsModel } from "../models/ticket.models.js";
 
 class cartsManager {
@@ -91,7 +94,6 @@ class cartsManager {
     } catch (err) {
       throw new Error(err);
     }
-   
   }
 
   async putProductsArray(cartId, productsObjet) {
@@ -104,17 +106,15 @@ class cartsManager {
     }
   }
 
-  async updateQuantity(cartId, productId) {
+  async updateQuantity(cartId, productId, quantity) {
     try {
       const findCart = await cartModel.findById(cartId);
-      const product = findCart.products.find((p) => p.productId === productId);
-
-      if (product) {
-        product.quantity = quantity;
-      }
-
-      const updateCart = await findCart.save();
-      return updateCart;
+      findCart.products.forEach((product) => {
+        if (product.product == productId) {
+          product.quantity = quantity;
+        }
+      });
+      return findCart.save();
     } catch (err) {
       throw new Error(err);
     }
@@ -130,13 +130,57 @@ class cartsManager {
     }
   }
 
-  async createTicket(ticket) {
+  async purchaseCart(cartId, req) {
     try {
-      const newTicket = await ticketsModel.create(ticket);
-      newTicket.save();
+      const findCart = await cartModel.findById(cartId);
+      if (findCart.products.length == 0) {
+        throw new Error("El carrito esta vacio");
+      }
+      if (!findCart) {
+        throw new Error("Carrito no encontrado");
+      }
 
+      let ticketsProducts = [];
+      let rejectedProducts = [];
+
+      for (let i = 0; i < findCart.products.length; i++) {
+        const cartProduct = findCart.products[i];
+        const productDB = await productsModel.findById(cartProduct.product._id);
+        if (productDB.stock >= cartProduct.quantity) {
+          ticketsProducts.push(cartProduct);
+
+          productDB.stock -= cartProduct.quantity;
+          await productDB.save();
+        } else {
+
+          rejectedProducts.push("SIN STOCK",cartProduct);
+        }
+
+        const newTicket = {
+          code: uuidv4(),
+          purchase_datetime: new Date(),
+          amount: ticketsProducts.reduce(
+            (acc, curr) => acc + curr.quantity * curr.product.price,
+            0
+          ),
+          purchaser: req.user.email,
+        };
+
+        const ticket = await ticketsModel.create(newTicket);
+
+        if (ticket)
+          for (let i = 0; i < ticketsProducts.length; i++) {
+            const ticketProduct = ticketsProducts[i];
+            //delete from cart ticketProduct
+            await this.deleteProductFromCart(cartId, ticketProduct.product._id);
+          }
+
+        if (rejectedProducts.length) {
+          return rejectedProducts;
+        }
+      }
     } catch (err) {
-      throw new Error(err);
+      console.log(err);
     }
   }
 }
