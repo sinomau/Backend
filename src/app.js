@@ -15,6 +15,7 @@ import { dbConnection } from "./config/dbConnection.js";
 import { options } from "./config/options.js";
 import { ChatManagerMongo } from "./dao/db-managers/chat.manager.js";
 import { ChatModel } from "./dao/models/chat.model.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 dbConnection();
 
@@ -23,6 +24,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/../public"));
+app.use(errorHandler);
 
 //session connection
 app.use(

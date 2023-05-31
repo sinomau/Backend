@@ -37,3 +37,8 @@ export async function orderProductByPriceService(num) {
   const sort = await manager.orderProductByPrice(num);
   return sort;
 }
+
+export async function mockingProductsService() {
+  const mocking = await manager.mockingProducts();
+  return mocking;
+}

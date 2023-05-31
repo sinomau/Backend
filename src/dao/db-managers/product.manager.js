@@ -1,6 +1,6 @@
 import __dirname from "../../utils.js";
 import productModel from "../models/products.model.js";
-
+import { faker } from "@faker-js/faker";
 class productManager {
   constructor() {
     console.log("Working with products using DataBase");
@@ -100,6 +100,28 @@ class productManager {
     } catch (err) {
       console.error(err);
       throw new Error("Error al ordenar productos por precio");
+    }
+  }
+
+  async mockingProducts() {
+    try {
+      const products = [];
+      for (let i = 0; i < 100; i++) {
+        const product = {
+          code: parseInt(faker.string.numeric(4)),
+          title: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          price: faker.commerce.price(),
+          thumbnail: faker.image.url(),
+          stock: parseInt(faker.string.numeric(2)),
+          category: faker.commerce.department(),
+        };
+        products.push(product);
+      }
+      return products;
+    } catch (err) {
+      console.error(err);
+      throw new Error("Error al mockear productos");
     }
   }
 }
