@@ -3,7 +3,7 @@ import productsRouter from "./routes/products.routes.js";
 import cartsRouter from "./routes/cart.routes.js";
 import viewsRouter from "./routes/views.routes.js";
 import { authRouter } from "./routes/auth.routes.js";
-import __dirname from "./utils.js ";
+import __dirname from "./utils/utils.js";
 import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import session from "express-session";
@@ -16,6 +16,9 @@ import { options } from "./config/options.js";
 import { ChatManagerMongo } from "./dao/db-managers/chat.manager.js";
 import { ChatModel } from "./dao/models/chat.model.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { addLogger, logger } from "./utils/logger.js";
+import path from "path";
+import { loggerRouter } from "./routes/logger.routes.js";
 
 dbConnection();
 
@@ -25,6 +28,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/../public"));
 app.use(errorHandler);
+app.use(addLogger);
+app.use("/loggerTest", loggerRouter)
+
 
 //session connection
 app.use(
@@ -46,14 +52,15 @@ app.use(passport.session());
 //handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
-app.set("views", __dirname + "/views");
-
+app.set('views',path.join(__dirname, "../views"));
 //fs connect
 export const port = options.server.port;
 
 const httpServer = app.listen(port, () =>
   console.log(`Server listening on port ${port}`)
 );
+
+logger.info(`Server listening on port ${port}`);
 
 const socketServer = new Server(httpServer);
 

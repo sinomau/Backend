@@ -1,4 +1,5 @@
 import { ticketsModel } from "../models/ticket.models.js";
+import { logger } from "../../utils/logger.js";
 
 class ticketsManager {
   constructor() {
@@ -6,12 +7,11 @@ class ticketsManager {
   }
 
   async createTicket(ticket) {
-    console.log(ticket);
     try {
       const addTicket = await ticketsModel.create(ticket);
       return addTicket;
     } catch (err) {
-      throw new Error(err);
+      logger.error(err);
     }
   }
 
@@ -22,8 +22,8 @@ class ticketsManager {
         .lean()
         .populate("products.product");
       return tickets;
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logger.error(err);
       return [];
     }
   }

@@ -8,7 +8,7 @@ import {
   orderProductByPriceService,
   mockingProductsService,
 } from "../service/products.service.js";
-
+import { logger } from "../utils/logger.js";
 import { CustomError } from "../service/customError.service.js";
 import { userAuthError } from "../service/authError.service.js";
 import { EError } from "../enums/EError.js";
@@ -30,6 +30,7 @@ export const getProductsController = async (req, res) => {
     }
     res.send({ status: "success", payload: products });
   } catch (err) {
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -40,6 +41,7 @@ export const getProductByIdController = async (req, res) => {
     const product = await getProductByIdService(pid);
     res.send({ status: "success", payload: product });
   } catch (err) {
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -66,6 +68,7 @@ export const addProductController = async (req, res) => {
     });
     res.send({ status: "success", payload: product });
   } catch (err) {
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -94,7 +97,7 @@ export const updateProductController = async (req, res) => {
     });
     res.send({ status: "success", payload: product });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -112,7 +115,7 @@ export const deleteProductController = async (req, res) => {
     const product = await deleteProductService(id);
     res.send({ status: "success", payload: product });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -123,8 +126,7 @@ export const getProductsByCategoryController = async (req, res) => {
     const products = await getProductsByCategoryService(cat);
     res.send({ status: "success", payload: products });
   } catch (err) {
-    console.log(err);
-
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };
@@ -141,6 +143,7 @@ export const orderProductByPriceController = async (req, res) => {
       res.send({ status: "ok", payload: await getProductService() });
     }
   } catch (err) {
+    logger.error(err);
     console.log(err);
 
     res.status(404).send({ status: "error", error: `${err}` });
@@ -152,7 +155,7 @@ export const mockingProductsController = async (req, res) => {
     const mocking = await mockingProductsService();
     res.send({ status: "success", payload: mocking });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     res.status(404).send({ status: "error", error: `${err}` });
   }
 };

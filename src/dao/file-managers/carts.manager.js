@@ -1,5 +1,6 @@
 import fs from "fs";
-import __dirname from "../../utils.js";
+import __dirname from "../../utils/utils.js";
+import { logger } from "../../utils/logger.js";
 
 class cartsManager {
   #path = __dirname + "/dao/file-managers/files/carts.json";
@@ -25,8 +26,8 @@ class cartsManager {
     try {
       const carts = await fs.promises.readFile(this.#path, "utf-8");
       return JSON.parse(carts);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logger.error(err);
       return [];
     }
   }
@@ -41,6 +42,7 @@ class cartsManager {
       carts = [...carts, cart];
       await fs.promises.writeFile(this.#path, JSON.stringify(carts));
     } catch (err) {
+      logger.error(err);
       throw new Error("Cart not added");
     }
   }
@@ -54,6 +56,7 @@ class cartsManager {
     if (find) {
       return find;
     } else {
+      logger.error(err);
       throw new Error("Product not found");
     }
   }
@@ -92,7 +95,7 @@ class cartsManager {
         await fs.promises.writeFile(this.#path, JSON.stringify(newCarts));
       }
     } catch (err) {
-      throw new Error(err);
+      logger.error(err);
     }
   }
 
@@ -125,7 +128,7 @@ class cartsManager {
         await fs.promises.writeFile(this.#path, JSON.stringify(newCart));
       }
     } catch (err) {
-      throw new Error(err);
+      logger.error(err);
     }
   }
 }

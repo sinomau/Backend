@@ -2,8 +2,9 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import GithubStrategy from "passport-github2";
 import { userModel } from "../dao/models/user.model.js";
-import { createHash, isValidPassword } from "../utils.js";
+import { createHash, isValidPassword } from "../utils/utils.js";
 import cartsModel from "../dao/models/carts.model.js";
+import { logger } from "../utils/logger.js";
 
 const initializedPassport = () => {
   passport.use(
@@ -17,6 +18,7 @@ const initializedPassport = () => {
         try {
           const user = await userModel.findOne({ email: username });
           if (user) {
+            logger.error("Usuario ya existe");
             return done(null, false, { message: "Usuario ya existe" });
           }
           const newUser = {
@@ -59,12 +61,14 @@ const initializedPassport = () => {
         try {
           const user = await userModel.findOne({ email: username });
           if (!user) {
+            logger.error("Usuario no encontrado");
             return done(null, false, { message: "Usuario no encontrado" });
           }
           if (!isValidPassword(user, password)) {
+            logger.error("Password Incorrecta");
             return done(null, false, { message: "Password Incorrecta" });
           }
-
+          logger.info("Usuario logueado correctamente");
           return done(null, user);
         } catch (error) {
           return done(error);

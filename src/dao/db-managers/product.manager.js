@@ -1,6 +1,7 @@
-import __dirname from "../../utils.js";
+import __dirname from "../../utils/utils.js";
 import productModel from "../models/products.model.js";
 import { faker } from "@faker-js/faker";
+import { logger } from "../../utils/logger.js";
 class productManager {
   constructor() {
     console.log("Working with products using DataBase");
@@ -34,7 +35,7 @@ class productManager {
       const result = await productModel.create(product);
       return result;
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw new Error("Product not added");
     }
   }
@@ -44,7 +45,7 @@ class productManager {
       const products = await productModel.find().lean();
       return products;
     } catch (e) {
-      console.log(e);
+      logger.error(err);
       return [];
     }
   }
@@ -54,6 +55,7 @@ class productManager {
       const prodFind = await productModel.findById(id).lean();
       return prodFind;
     } catch (err) {
+      logger.error(err);
       throw new Error("Product not found");
     }
   }
@@ -64,7 +66,7 @@ class productManager {
       findAndUpdate.save();
       return findAndUpdate;
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       throw new Error("Product not updated");
     }
   }
@@ -77,6 +79,7 @@ class productManager {
       }
       return deletedProduct;
     } catch (err) {
+      logger.error(err);
       throw new Error("Product not deleted");
     }
   }
@@ -86,7 +89,7 @@ class productManager {
       const products = await productModel.find({ category: category }).lean();
       return products;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       throw new Error("Error al buscar productos por categoría");
     }
   }
@@ -98,7 +101,7 @@ class productManager {
       ]);
       return products;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       throw new Error("Error al ordenar productos por precio");
     }
   }
@@ -120,7 +123,7 @@ class productManager {
       }
       return products;
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       throw new Error("Error al mockear productos");
     }
   }

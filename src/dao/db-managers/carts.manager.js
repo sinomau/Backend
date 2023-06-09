@@ -1,9 +1,10 @@
-import __dirname from "../../utils.js";
+import __dirname from "../..//utils/utils.js";
 import cartModel from "../models/carts.model.js";
 import { v4 as uuidv4 } from "uuid";
 import productsModel from "../models/products.model.js";
-import ticketsManager from "./tickets.manager.js";
 import { ticketsModel } from "../models/ticket.models.js";
+import { transporter } from "../../config/gmail.js";
+import { logger } from "../../utils/logger.js";
 
 class cartsManager {
   #path = __dirname + "/dao/file-managers/files/carts.json";
@@ -134,10 +135,10 @@ class cartsManager {
     try {
       const findCart = await cartModel.findById(cartId);
       if (findCart.products.length == 0) {
-        throw new Error("El carrito esta vacio");
+        logger.error("Carrito vacio");
       }
       if (!findCart) {
-        throw new Error("Carrito no encontrado");
+        logger.error("Carrito no encontrado");
       }
 
       let ticketsProducts = [];
@@ -152,8 +153,7 @@ class cartsManager {
           productDB.stock -= cartProduct.quantity;
           await productDB.save();
         } else {
-
-          rejectedProducts.push("SIN STOCK",cartProduct);
+          rejectedProducts.push("SIN STOCK", cartProduct);
         }
 
         const newTicket = {
@@ -167,6 +167,27 @@ class cartsManager {
         };
 
         const ticket = await ticketsModel.create(newTicket);
+        const mailTemplate = `<div>
+        <h1>Gracias por su compra</h1>
+        <h2>Detalle de la compra</h2>
+        <ul>
+          ${ticketsProducts.map(
+            (product) =>
+              `<li>${product.product.title} - ${product.quantity} Unidades - $${
+                product.product.price * product.quantity
+              }</li>`
+          )}
+        </ul>
+        <h3>Total: $${newTicket.amount}</h3>
+        <h3>Codigo de compra: ${newTicket.code}</h3>
+        </div>`;
+
+        await transporter.sendMail({
+          from: "Ecommerce",
+          to: req.user.email,
+          subject: "Gracias por su compra",
+          html: mailTemplate,
+        });
 
         if (ticket)
           for (let i = 0; i < ticketsProducts.length; i++) {
@@ -180,7 +201,7 @@ class cartsManager {
         }
       }
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     }
   }
 }

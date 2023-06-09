@@ -1,5 +1,5 @@
 import fs from "fs";
-import __dirname from "../../utils.js";
+import __dirname from "../../utils/utils.js";
 
 class productManager {
   #path = __dirname + "/dao/file-managers/files/products.json";
@@ -64,8 +64,8 @@ class productManager {
     try {
       const stock = await fs.promises.readFile(this.#path, "utf-8");
       return JSON.parse(stock);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logger.error(err);
       return [];
     }
   }
@@ -83,16 +83,14 @@ class productManager {
   async deleteProduct(productId) {
     const products = await this.getProducts();
     const parsedId = parseInt(productId);
-    console.log(parsedId)
+    console.log(parsedId);
     const id = products.find((product) => product.id === parsedId);
 
     if (!id) {
       throw new Error("Product not found");
     } else {
       products.findIndex((product) => product.id === parsedId);
-      const newProducts = products.filter(
-        (product) => product.id !== parsedId
-      );
+      const newProducts = products.filter((product) => product.id !== parsedId);
       await fs.promises.writeFile(this.#path, JSON.stringify(newProducts));
     }
   }
