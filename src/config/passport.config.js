@@ -115,6 +115,10 @@ const initializedPassport = () => {
     )
   );
 
+
+
+
+
   //serializar y deserializar usuarios
   passport.serializeUser((user, done) => {
     done(null, user._id);

@@ -19,5 +19,6 @@ export const options = {
   gmail: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
+    emailToken: process.env.EMAIL_TOKEN,
   },
 };

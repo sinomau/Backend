@@ -9,6 +9,8 @@ import {
   realTimeProductsViewController,
   productsViewController,
   cartsViewController,
+  resetPasswordViewController,
+  forgotPasswordViewController
 } from "../controllers/views.controller.js";
 
 const viewsRouter = Router();
@@ -16,6 +18,10 @@ const viewsRouter = Router();
 viewsRouter.get("/chat",checkRole(["user"]), chatViewController);
 
 viewsRouter.get("/", loginViewController);
+
+viewsRouter.get("/forgot-password", forgotPasswordViewController );
+
+viewsRouter.get("/reset-password", resetPasswordViewController);
 
 viewsRouter.get("/signup", signupViewController);
 

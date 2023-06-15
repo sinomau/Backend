@@ -19,6 +19,7 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import { addLogger, logger } from "./utils/logger.js";
 import path from "path";
 import { loggerRouter } from "./routes/logger.routes.js";
+import {usersRouter} from "./routes/users.routes.js";
 
 dbConnection();
 
@@ -82,6 +83,7 @@ app.use("/", viewsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/sessions", authRouter);
+app.use("/api/users/", usersRouter);
 
 //chat
 const chatManager = new ChatManagerMongo(ChatModel);

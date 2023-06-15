@@ -43,7 +43,7 @@ export const productsViewController = async (req, res) => {
   const user = req.user.email;
   const role = req.user.role;
   const cart = req.user.cart;
-  
+
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }
@@ -56,9 +56,17 @@ export const cartsViewController = async (req, res) => {
   const carts = await cartManager.getCartProducts(cartId);
   if (carts) {
     const prodsInCart = carts.products;
-   
+
     res.render("carts", { prodsInCart });
   } else {
     res.render("carts", { prodsInCart: [] });
   }
+};
+
+export const resetPasswordViewController = async (req, res) => {
+  res.render("resetPassword");
+};
+
+export const forgotPasswordViewController = async (req, res) => {
+  res.render("forgotPassword");
 };

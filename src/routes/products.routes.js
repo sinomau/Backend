@@ -17,7 +17,7 @@ productsRouter.get("/", getProductsController);
 
 productsRouter.get("/:pid", getProductByIdController);
 
-productsRouter.post("/", addProductController);
+productsRouter.post("/",checkRole(["admin","premium"]), addProductController);
 
 productsRouter.put("/:id", checkRole(["admin"]), updateProductController);
 

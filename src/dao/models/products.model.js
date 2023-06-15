@@ -7,7 +7,10 @@ const productSchema = new mongoose.Schema({
     unique: true,
     required: false,
   },
-
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+  },
   title: String,
   description: String,
   price: Number,
