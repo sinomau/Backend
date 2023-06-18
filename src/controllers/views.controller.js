@@ -64,8 +64,9 @@ export const cartsViewController = async (req, res) => {
 };
 
 export const resetPasswordViewController = async (req, res) => {
-  res.render("resetPassword");
-};
+  const token =  req.query.token;
+  res.render("resetPassword",{token});
+}
 
 export const forgotPasswordViewController = async (req, res) => {
   res.render("forgotPassword");

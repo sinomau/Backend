@@ -8,3 +8,9 @@ export async function updateUserRoleService(uid) {
   const roleUpdated = await userManager.updateUserRole(uid);
   return roleUpdated;
 }
+
+
+export async function getUserByEmailService(email) {
+  const user = await userManager.getUserByEmail(email);
+  return user;
+}

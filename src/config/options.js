@@ -17,8 +17,8 @@ export const options = {
     secretSession: process.env.SECRET_SESSION,
   },
   gmail: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
+    emailAdmin: process.env.GMAIL_ADMIN,
+    emailPass: process.env.GMAIL_PASS,
     emailToken: process.env.EMAIL_TOKEN,
   },
 };

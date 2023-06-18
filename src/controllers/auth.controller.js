@@ -1,10 +1,13 @@
 import { UserManagerMongo } from "../dao/db-managers/user.manager.js";
 import { userModel } from "../dao/models/user.model.js";
 import passport from "passport";
-import { recoveryPassword } from "../config/gmail.js";
-import { generateEmailToken } from "../utils/utils.js";
-import { verifyEmailToken } from "../utils/utils.js";
-import { isValidPassword } from "../utils/utils.js";
+import { sendRecoveryPass } from "../config/gmail.js";
+import {
+  verifyEmailToken,
+  isValidPassword,
+  generateEmailToken,
+  createHash,
+} from "../utils/utils.js";
 
 const manager = new UserManagerMongo(userModel);
 
@@ -62,23 +65,39 @@ export const getProfileController = async (req, res) => {
 export const forgotPasswordController = async (req, res) => {
   const { email } = req.body;
   const user = await manager.getUserByEmail(email);
-  if (!user) return res.send("Usuario no encontrado");
-  const token = manager.generateEmailToken(email, 3 * 60);
-  await recoveryPassword(email, token);
+  if (!user) {
+    return res.send(`Usuario no encontrado`);
+  }
+  const token = generateEmailToken(email, 3 * 60);
+
+  await sendRecoveryPass(email, token);
   res.send("Correo enviado revise su casilla, para restaurar su contraseña");
 };
 
 export const resetPasswordController = async (req, res) => {
   const token = req.query.token;
-  const { email, password } = req.body;
+  const { email, loginPassword } = req.body;
   const emailToken = verifyEmailToken(token);
-  if (!emailToken) return res.send("Token invalido o expirado");
-  const user = await manager.getUserByEmail(email);
-  if (!user) return res.send("Usuario no encontrado");
-  if (isValidPassword(newPassword, user))
-    return res.send("La contraseña no puede ser igual a la anterior");
-  const newPassword = manager.createHash(password);
-  await manager.updateUserPassword(email, newPassword);
+  
 
-  res.send("Contraseña actualizada");
+  if (!emailToken)
+    return res.send(
+      `El enlace ya no es valido, para generar nuevamente <a href="/forgot-password">Recuperar Password</a>`
+    );
+
+  const user = await userModel.findOne({ email: email });
+  if (!user) return res.send("Usuario no encontrado");
+
+  if (isValidPassword(user,loginPassword)){
+    return res.send("No puedes utilizar la misma contraseña");
+  }
+
+  const userData = {
+    ...user._doc,
+    password: createHash(loginPassword),
+  };
+
+  const userUpdate = await userModel.findByIdAndUpdate(user._id, userData);
+
+  res.render("login", { message: "contraseña actualizada" });
 };

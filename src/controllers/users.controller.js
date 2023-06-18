@@ -1,4 +1,5 @@
-import { updateUserRoleService } from "../service/users.service.js";
+import { updateUserRoleService ,
+getUserByEmailService} from "../service/users.service.js";
 
 export const updateUserRoleController = async (req, res) => {
   try {
@@ -9,3 +10,4 @@ export const updateUserRoleController = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
