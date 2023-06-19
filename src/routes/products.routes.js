@@ -21,7 +21,7 @@ productsRouter.post("/",checkRole(["admin","premium"]), addProductController);
 
 productsRouter.put("/:id", checkRole(["admin"]), updateProductController);
 
-productsRouter.delete("/:id", checkRole(["admin"]), deleteProductController);
+productsRouter.delete("/:id", checkRole(["admin","premium"]), deleteProductController);
 
 productsRouter.get("/category/:cat", getProductsByCategoryController);
 

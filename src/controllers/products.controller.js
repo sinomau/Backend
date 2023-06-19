@@ -57,6 +57,7 @@ export const addProductController = async (req, res) => {
     }
     const { code, title, description, price, thumbnail, stock, category } =
       req.body;
+    const owner = req.user._id;
     const product = await addProductService({
       code,
       title,
@@ -65,7 +66,9 @@ export const addProductController = async (req, res) => {
       thumbnail,
       stock,
       category,
+      owner,
     });
+    console.log(product);
     res.send({ status: "success", payload: product });
   } catch (err) {
     logger.error(err);
@@ -104,19 +107,31 @@ export const updateProductController = async (req, res) => {
 
 export const deleteProductController = async (req, res) => {
   try {
-    if (req.user.role === "user") {
-      throw CustomError.createError({
-        name: "is not admin",
-        message: userAuthError(req.user),
-        errorCode: EError.userAuthError,
-      });
+    const id = req.params.id;
+    console.log(id);
+    const findProduct = await getProductByIdService(id);
+    console.log(findProduct);
+    if (findProduct) {
+      const productOwner = JSON.parse(JSON.stringify(findProduct.owner));
+      const userId = JSON.parse(JSON.stringify(req.user._id));
+      if (
+        (req.user.role === "premium" && productOwner == userId) ||
+        req.user.role === "admin"
+      ) {
+        await deleteProductService(id);
+        res.send({ status: "success", payload: "Product deleted" });
+      }else{
+        throw CustomError.createError({
+          name: "is not admin",
+          message: userAuthError(req.user),
+          errorCode: EError.userAuthError,
+        });
+      }
+      
     }
-    const { id } = req.params;
-    const product = await deleteProductService(id);
-    res.send({ status: "success", payload: product });
   } catch (err) {
     logger.error(err);
-    res.status(404).send({ status: "error", error: `${err}` });
+    res.json({ status: "error", error: `${err}` })
   }
 };
 

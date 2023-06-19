@@ -15,6 +15,7 @@ class productManager {
     thumbnail,
     stock,
     category,
+    owner,
   }) {
     try {
       const product = {
@@ -25,6 +26,7 @@ class productManager {
         thumbnail,
         stock,
         category,
+        owner,
       };
       const products = await productModel.find().lean();
       const codeRepeat = products.find((p) => p.code === code);

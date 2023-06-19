@@ -20,7 +20,7 @@ cartsRouter.get("/", getCartsController);
 
 cartsRouter.get("/:cid", getCartProductsController);
 
-cartsRouter.post("/:cid/products/:pid",checkRole(["user"]), addProductToCartController);
+cartsRouter.post("/:cid/products/:pid", addProductToCartController);
 
 cartsRouter.delete("/:cid/products/:pid", deleteProductFromCartController);
 

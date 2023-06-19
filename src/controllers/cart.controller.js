@@ -10,6 +10,7 @@ import {
   purchaseCartService,
   createTicketService,
 } from "../service/carts.service.js";
+import { getProductByIdService } from "../service/products.service.js";
 
 export const addCartController = async (req, res) => {
   let cart = await addCartService();
@@ -27,8 +28,29 @@ export const getCartProductsController = async (req, res) => {
 };
 
 export const addProductToCartController = async (req, res) => {
-  let cart = await addProductToCartService(req.params.cid, req.params.pid);
-  res.json({ status: "success", message: "Product added to cart", data: cart });
+  const findProduct = await getProductByIdService(req.params.pid);
+  console.log(findProduct)
+  if (findProduct) {
+    const productOwner = JSON.parse(JSON.stringify(findProduct.owner));
+    const userId = JSON.parse(JSON.stringify(req.user._id));
+    if (productOwner == userId && req.user.role === "premium") {
+      res.json({ status: "fail", message: "You can't buy your own product" });
+    } else {
+      let cart = await addProductToCartService(req.params.cid, req.params.pid);
+      res.json({
+        status: "success",
+        message: "Product added to cart",
+        data: cart,
+      });
+    }
+  } else {
+    let cart = await addProductToCartService(req.params.cid, req.params.pid);
+    res.json({
+      status: "success",
+      message: "Product added to cart",
+      data: cart,
+    });
+  }
 };
 
 export const deleteProductFromCartController = async (req, res) => {
@@ -69,7 +91,7 @@ export const deleteCartController = async (req, res) => {
 
 export const purchaseCartController = async (req, res) => {
   let cid = req.params.cid;
-  let cart = await purchaseCartService(cid,req);
+  let cart = await purchaseCartService(cid, req);
   res.json({ status: "success", message: "Cart listed", data: cart });
 };
 

@@ -25,16 +25,16 @@ viewsRouter.get("/reset-password", resetPasswordViewController);
 
 viewsRouter.get("/signup", signupViewController);
 
-viewsRouter.get("/profile",checkRole(["user","admin"]), profileViewController);
+viewsRouter.get("/profile",checkRole(["user","admin","premium"]), profileViewController);
 
 viewsRouter.get("/failure-signup", failureSignupViewController);
 
 //view realtime products
 
-viewsRouter.get("/real-time-products",checkRole(["user","admin"]), realTimeProductsViewController);
+viewsRouter.get("/real-time-products",checkRole(["user","admin","premium"]), realTimeProductsViewController);
 
-viewsRouter.get("/products",checkRole(["user","admin"]), productsViewController);
+viewsRouter.get("/products",checkRole(["user","admin","premium"]), productsViewController);
 
-viewsRouter.get("/carts",checkRole(["user","admin"]), cartsViewController);
+viewsRouter.get("/carts",checkRole(["user","admin","premium"]), cartsViewController);
 
 export default viewsRouter;

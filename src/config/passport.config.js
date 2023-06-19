@@ -71,7 +71,8 @@ const initializedPassport = () => {
           logger.info("Usuario logueado correctamente");
           return done(null, user);
         } catch (error) {
-          return done(error);
+          logger.error(error);
+            return done(error);
         }
       }
     )
