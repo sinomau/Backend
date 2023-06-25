@@ -100,6 +100,10 @@ class cartsManager {
   async putProductsArray(cartId, productsObjet) {
     try {
       const findCart = await cartModel.findById(cartId);
+      console.log(findCart)
+      if (!findCart) {
+        throw new Error("Carrito no encontrado");
+      }
       findCart.products.push(productsObjet);
       return findCart.save();
     } catch (err) {

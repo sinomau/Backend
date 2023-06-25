@@ -19,7 +19,9 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import { addLogger, logger } from "./utils/logger.js";
 import path from "path";
 import { loggerRouter } from "./routes/logger.routes.js";
-import {usersRouter} from "./routes/users.routes.js";
+import { usersRouter } from "./routes/users.routes.js";
+import { swaggerSpecs } from "./config/docConfig.js";
+import  swaggerUi  from "swagger-ui-express";
 
 dbConnection();
 
@@ -30,8 +32,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/../public"));
 app.use(errorHandler);
 app.use(addLogger);
-app.use("/loggerTest", loggerRouter)
-
+app.use("/loggerTest", loggerRouter);
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpecs, swaggerUi)
+);
 
 //session connection
 app.use(
@@ -53,7 +59,7 @@ app.use(passport.session());
 //handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
-app.set('views',path.join(__dirname, "../views"));
+app.set("views", path.join(__dirname, "../views"));
 //fs connect
 export const port = options.server.port;
 
