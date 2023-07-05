@@ -26,7 +26,7 @@ import  swaggerUi  from "swagger-ui-express";
 dbConnection();
 
 //middlewares
-const app = express();
+export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/../public"));

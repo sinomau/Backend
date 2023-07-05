@@ -10,6 +10,7 @@ export const options = {
   },
   mongoDB: {
     url: process.env.MONGO_URL,
+    urlDev: process.env.MONGO_URL_DEV,
   },
   server: {
     environment: process.env.NODE_ENV,
