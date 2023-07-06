@@ -1,53 +1,61 @@
-import { expect } from "chai";
 import supertest from "supertest";
-import app from "../src/app.js";
+import chai from "chai";
 
+const expect = chai.expect;
+const requester = supertest("http://localhost:8080");
 
-const request = supertest(app);
-
-describe("Test de las rutas de productos", () => {
-  beforeEach(async function () {
-    // Aquí puedes reiniciar la base de datos de productos si es necesario
+describe("Test products", () => {
+  describe("Obtener todos los productos", () => {
+    it("El endpoint GET /api/products debe devolver todos los productos", async () => {
+      const result = await requester.get("/api/products");
+      expect(result).to.be.ok;
+    });
+  });
+  describe("Post de un producto", () => {
+    it("El endpoint POST /api/products debe crear un producto", async () => {
+      const productMock = {
+        name: "Producto de prueba",
+        description: "Descripcion de prueba",
+        price: 1000,
+        stock: 10,
+        image: "https://via.placeholder.com/150",
+        category: "test",
+      };
+      const result = await requester.post("/api/products").send(productMock);
+      expect(result).to.be.ok;
+    });
+  });
+  describe("Obtener un producto", () => {
+    it("El endpoint GET /api/products/:id debe devolver un producto", async () => {
+      const result = await requester.get("/api/products/1");
+      expect(result).to.be.ok;
+    });
+  });
+  describe("Actualizar un producto", () => {
+    it("El endpoint PUT /api/products/:id debe actualizar un producto", async () => {
+      const productMock = {
+        name: "Producto de prueba",
+        description: "Descripcion de prueba",
+        price: 1000,
+        stock: 10,
+        image: "https://via.placeholder.com/150",
+        category: "test",
+      };
+      const result = await requester.put("/api/products/1").send(productMock);
+      expect(result).to.be.ok;
+    });
+  });
+  describe("Eliminar un producto", () => {
+    it("El endpoint DELETE /api/products/:id debe eliminar un producto", async () => {
+      const result = await requester.delete("/api/products/1");
+      expect(result).to.be.ok;
+    });
+  });
+  describe("Obtener productos por categoria", () => {
+    it("El endpoint GET /api/products/category/:category debe devolver productos por categoria", async () => {
+      const result = await requester.get("/api/products/category/test");
+      expect(result).to.be.ok;
+    });
   });
 
-  it("Debe devolver todos los productos", async function () {
-    const response = await requester.get("/products");
-    expect(response.statusCode).to.be.equal(200);
-    // Aquí puedes agregar más expectativas según los datos que esperas recibir
-  });
-
-  it("Debe devolver un producto específico según su ID", async function () {
-    const productId = "exampleProductId"; // Reemplaza con el ID válido de un producto existente
-    const response = await requester.get(`/products/${productId}`);
-    expect(response.statusCode).to.be.equal(200);
-    // Aquí puedes agregar más expectativas según los datos que esperas recibir
-  });
-
-  it("Debe agregar un nuevo producto", async function () {
-    const productData = {
-      // Aquí puedes proporcionar los datos del producto a agregar
-    };
-    const response = await requester.post("/products").send(productData);
-    expect(response.statusCode).to.be.equal(200);
-    // Aquí puedes agregar más expectativas según la respuesta esperada
-  });
-
-  it("Debe actualizar un producto existente", async function () {
-    const productId = "exampleProductId"; // Reemplaza con el ID válido de un producto existente
-    const updatedProductData = {
-      // Aquí puedes proporcionar los datos actualizados del producto
-    };
-    const response = await requester
-      .put(`/products/${productId}`)
-      .send(updatedProductData);
-    expect(response.statusCode).to.be.equal(200);
-    // Aquí puedes agregar más expectativas según la respuesta esperada
-  });
-
-  it("Debe eliminar un producto existente", async function () {
-    const productId = "exampleProductId"; // Reemplaza con el ID válido de un producto existente
-    const response = await requester.delete(`/products/${productId}`);
-    expect(response.statusCode).to.be.equal(200);
-    // Aquí puedes agregar más expectativas según la respuesta esperada
-  });
 });

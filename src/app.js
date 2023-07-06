@@ -26,7 +26,7 @@ import  swaggerUi  from "swagger-ui-express";
 dbConnection();
 
 //middlewares
-export const app = express();
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/../public"));
@@ -108,3 +108,6 @@ socketServer.on("connection", async (socketConnected) => {
     socketServer.emit("msgHistory", messages);
   });
 });
+
+
+export default app;
