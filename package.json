@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon ./src/app.js",
-    "test": "mocha test/integration.test.js",
-    "testprod": "mocha test/products.test.js"
+    "test": "mocha --exit --recursive --timeout 5000 test/integration.test.js"
+    
   },
   "repository": {
     "type": "git",

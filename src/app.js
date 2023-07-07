@@ -21,7 +21,7 @@ import path from "path";
 import { loggerRouter } from "./routes/logger.routes.js";
 import { usersRouter } from "./routes/users.routes.js";
 import { swaggerSpecs } from "./config/docConfig.js";
-import  swaggerUi  from "swagger-ui-express";
+import swaggerUi from "swagger-ui-express";
 
 dbConnection();
 
@@ -33,11 +33,7 @@ app.use(express.static(__dirname + "/../public"));
 app.use(errorHandler);
 app.use(addLogger);
 app.use("/loggerTest", loggerRouter);
-app.use(
-  "/api/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpecs, swaggerUi)
-);
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs, swaggerUi));
 
 //session connection
 app.use(
@@ -109,5 +105,4 @@ socketServer.on("connection", async (socketConnected) => {
   });
 });
 
-
-export default app;
+export { app };
