@@ -14,10 +14,11 @@ import {
   forgotPasswordController,
   resetPasswordController,
 } from "../controllers/auth.controller.js";
+import { uploaderProfile } from "../utils/multer.js";
 
 const router = Router();
 
-router.post("/signup", passportSignupController, signUpRedirectController);
+router.post("/signup",uploaderProfile.single("avatar"), passportSignupController, signUpRedirectController);
 
 router.post("/login", passportLoginController, loginRedirectController);
 

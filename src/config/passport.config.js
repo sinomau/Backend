@@ -16,6 +16,7 @@ const initializedPassport = () => {
       },
       async (req, username, password, done) => {
         try {
+          console.log(req.file)
           const user = await userModel.findOne({ email: username });
           if (user) {
             logger.error("Usuario ya existe");
@@ -27,6 +28,7 @@ const initializedPassport = () => {
             last_name: req.body.last_name ? req.body.last_name : "NoLastName",
             password: createHash(password),
             role: "user",
+            avatar: req.file.path,
           };
 
           if (username.endsWith("@coder.com")) {
@@ -68,11 +70,14 @@ const initializedPassport = () => {
             logger.error("Password Incorrecta");
             return done(null, false, { message: "Password Incorrecta" });
           }
+          user.last_connection = new Date();
+          const userUpdated = await userModel.findByIdAndUpdate(user._id, user);
           logger.info("Usuario logueado correctamente");
-          return done(null, user);
+
+          return done(null, userUpdated);
         } catch (error) {
           logger.error(error);
-            return done(error);
+          return done(error);
         }
       }
     )
@@ -115,10 +120,6 @@ const initializedPassport = () => {
       }
     )
   );
-
-
-
-
 
   //serializar y deserializar usuarios
   passport.serializeUser((user, done) => {
