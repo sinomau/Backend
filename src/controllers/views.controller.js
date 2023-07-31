@@ -2,6 +2,9 @@ import { Router, json } from "express";
 import { productManager } from "../dao/index.js";
 import { cartsManager } from "../dao/index.js";
 import productModel from "../dao/models/products.model.js";
+import { userModel } from "../dao/models/user.model.js";
+import path from "path";
+import { __dirname } from "../utils/utils.js";
 
 const prodManager = new productManager();
 const cartManager = new cartsManager();
@@ -25,7 +28,8 @@ export const profileViewController = async (req, res) => {
   const user = req.user.email;
   const role = req.user.role;
   const cart = req.user.cart;
-  res.render("profile", { user, role, cart });
+  const avatar = req.user.avatar;
+  res.render("profile", { user, role, cart, avatar });
 };
 
 export const failureSignupViewController = async (req, res) => {
@@ -43,31 +47,40 @@ export const productsViewController = async (req, res) => {
   const user = req.user.email;
   const role = req.user.role;
   const cart = req.user.cart;
+  const avatar = req.user.avatar;
 
   const products = await productModel.paginate(
     {},
     { limit: 3, lean: true, page: page ?? 1 }
   );
-  res.render("products", { products, user, role, cart });
+  res.render("products", { products, user, role, cart, avatar });
 };
 
 export const cartsViewController = async (req, res) => {
-  let cartId = req.query.cartId;
-  const carts = await cartManager.getCartProducts(cartId);
-  if (carts) {
-    const prodsInCart = carts.products;
+  const userCart = req.user.cart;
+  const carts = await cartManager.getCartProducts(userCart);
 
-    res.render("carts", { prodsInCart });
+  if (carts) {
+    const cartId = carts._id;
+    const prodsInCart = carts.products;
+    console.log(carts);
+    const id = carts._id;
+    const idToString = id.toString();
+    res.render("carts", { prodsInCart, idToString, cartId });
   } else {
     res.render("carts", { prodsInCart: [] });
   }
 };
 
 export const resetPasswordViewController = async (req, res) => {
-  const token =  req.query.token;
-  res.render("resetPassword",{token});
-}
+  const token = req.query.token;
+  res.render("resetPassword", { token });
+};
 
 export const forgotPasswordViewController = async (req, res) => {
   res.render("forgotPassword");
+};
+
+export const usersViewController = async (req, res) => {
+  res.render("users");
 };

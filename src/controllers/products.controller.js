@@ -8,6 +8,8 @@ import {
   orderProductByPriceService,
   mockingProductsService,
 } from "../service/products.service.js";
+import { sendMailBeforeDeleteProduct } from "../config/gmail.js";
+import { getUserByIdService } from "../service/users.service.js";
 import { logger } from "../utils/logger.js";
 import { CustomError } from "../service/customError.service.js";
 import { userAuthError } from "../service/authError.service.js";
@@ -113,25 +115,30 @@ export const deleteProductController = async (req, res) => {
     console.log(findProduct);
     if (findProduct) {
       const productOwner = JSON.parse(JSON.stringify(findProduct.owner));
+      console.log(productOwner);
       const userId = JSON.parse(JSON.stringify(req.user._id));
+
+      const ownerUser = await getUserByIdService(productOwner);
+      if (ownerUser.role === "premium") {
+        await sendMailBeforeDeleteProduct(ownerUser.email, findProduct.title);
+      }
       if (
         (req.user.role === "premium" && productOwner == userId) ||
         req.user.role === "admin"
       ) {
         await deleteProductService(id);
         res.send({ status: "success", payload: "Product deleted" });
-      }else{
+      } else {
         throw CustomError.createError({
           name: "is not admin",
           message: userAuthError(req.user),
           errorCode: EError.userAuthError,
         });
       }
-      
     }
   } catch (err) {
     logger.error(err);
-    res.json({ status: "error", error: `${err}` })
+    res.json({ status: "error", error: `${err}` });
   }
 };
 

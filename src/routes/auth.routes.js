@@ -14,7 +14,7 @@ import {
   forgotPasswordController,
   resetPasswordController,
 } from "../controllers/auth.controller.js";
-import { uploaderProfile } from "../utils/multer.js";
+import { uploaderProfile } from "../middlewares/multer.js";
 
 const router = Router();
 

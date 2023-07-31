@@ -1,5 +1,47 @@
 import { updateUserRoleService } from "../service/users.service.js";
 import { userModel } from "../dao/models/user.model.js";
+import { deleteUserService } from "../service/users.service.js";
+import { sendMailAfterDeleteUser } from "../config/gmail.js";
+import cartsModel from "../dao/models/carts.model.js";
+
+
+export const getUserController = async (req, res) => {
+  try {
+    const users = await userModel.find().lean();
+    res.render("users", { users });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getUserByIdController = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await userModel.findById(uid);
+
+    res.send({ status: "success", payload: user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteUserController = async (req, res) => {
+  try {
+    const deletedUsers = await deleteUserService();
+    for (const user of deletedUsers) {
+      await sendMailAfterDeleteUser(user.email);
+    }
+
+    res.json({
+      status: "success",
+      message: "Usuarios eliminados correctamente.",
+      data: deletedUsers,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
 
 export const logOutController = async (req, res) => {
   const user = { ...req.user };
@@ -16,7 +58,8 @@ export const logOutController = async (req, res) => {
 
 export const updateUserRoleController = async (req, res, id) => {
   try {
-    id = req.params.uid;
+    const { id } = req.body;
+    console.log(id);
     const user = await userModel.findById(id);
     if (user.documents.length === 3) {
       user.status = "Completo";
@@ -84,3 +127,4 @@ export const uploadDocumentsController = async (req, res) => {
     res.json({ status: "error", message: "Error al cargar los documentos." });
   }
 };
+

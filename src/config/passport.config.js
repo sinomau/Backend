@@ -6,6 +6,7 @@ import { createHash, isValidPassword } from "../utils/utils.js";
 import cartsModel from "../dao/models/carts.model.js";
 import { logger } from "../utils/logger.js";
 
+
 const initializedPassport = () => {
   passport.use(
     "signupStrategy",
@@ -17,6 +18,7 @@ const initializedPassport = () => {
       async (req, username, password, done) => {
         try {
           console.log(req.file)
+
           const user = await userModel.findOne({ email: username });
           if (user) {
             logger.error("Usuario ya existe");
@@ -30,6 +32,7 @@ const initializedPassport = () => {
             role: "user",
             avatar: req.file.path,
           };
+          
 
           if (username.endsWith("@coder.com")) {
             newUser.role = "admin";

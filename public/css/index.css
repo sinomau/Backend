@@ -1,5 +1,28 @@
 .user-info {
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.profile-container {
+  display: flex !important;
   flex-direction: row;
   justify-content: space-between;
+  margin-bottom: 100px;
+}
+
+.avatar{
+  max-width: 140px;
+  max-height: 140px;
+}
+
+.logout-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.logout button{
+  width: 200px;
 }

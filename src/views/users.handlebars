@@ -1,0 +1,33 @@
+<div class="list-users-container">
+  <div class="small-container">
+    <form action="/api/users" method="GET">
+      <button type="submit">Obtener Usuarios</button>
+    </form>
+    <form>
+      <input
+        id="userId"
+        type="text"
+        required="true"
+        placeholder="Ingresa Id de usuario para cambio de Rol"
+      />
+      <button id="changeRole" type="submit">Cambiar de Rol Usuario</button>
+    </form>
+    <div>
+      <button id="deleteUser" type="button">Eliminar Usuarios Inactivos</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>Lista de Usuarios</h1>
+        <ul>
+          {{#each users}}
+            <li>{{this.first_name}} - {{this.role}} - ID: {{this._id}}</li>
+
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/users.js"></script>

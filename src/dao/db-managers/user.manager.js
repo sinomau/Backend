@@ -1,6 +1,57 @@
+import  cartsManager  from "./carts.manager.js";
+
 class UserManagerMongo {
   constructor(model) {
     this.model = model;
+    this.cartsManager = new cartsManager();
+  }
+
+  async getUser() {
+    try {
+      const data = await this.model.find();
+      const response = JSON.parse(JSON.stringify(data));
+      return response;
+    } catch (error) {
+      throw new Error(`Error al obtener usuarios: ${error.message}`);
+    }
+  }
+
+  async getUserById(uid) {
+    try {
+      const data = await this.model.findById(uid);
+      const response = JSON.parse(JSON.stringify(data));
+      return response;
+    } catch (error) {
+      throw new Error(`Error al obtener usuario: ${error.message}`);
+    }
+  }
+
+  async deleteUsersBasedOnLastConnection() {
+    try {
+      const twoMinutes = 2 * 60 * 1000; // 2 minutos en milisegundos
+      const allUsers = await this.model.find();
+      const usersToDelete = allUsers.filter((user) => {
+        const lastConnection = user.last_connection;
+        if (lastConnection instanceof Date) {
+          return Date.now() - lastConnection.getTime() >= twoMinutes;
+        }
+        return false;
+      });
+      await Promise.all(
+        usersToDelete.map(async (user) => {
+          const userCartId = user.cart;
+          const idToString = userCartId.toString();
+          await this.cartsManager.deleteAllProductsFromCart(idToString);
+        })
+      );
+      await this.model.deleteMany({
+        _id: { $in: usersToDelete.map((user) => user._id) },
+      });
+
+      return usersToDelete;
+    } catch (error) {
+      throw new Error(`Error al eliminar usuarios: ${error.message}`);
+    }
   }
 
   async addUser(user) {

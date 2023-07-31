@@ -1,10 +1,19 @@
-<div id="list">
+
+
+<div class="profile-container">
+  <div class="avatar">
+    <h2>Avatar</h2>
+    <img src="../multer/users/img/{{avatar}}" alt="avatar" />
+  </div>
   <div class="user-info">
+    <h1>Profile</h1>
     <li>Bienvenido : {{user}}</li>
     <li>Account Role : {{role}}</li>
     <li>Cart Id: {{cart}}</li>
-    <form method="post" action="/api/sessions/logout">
-      <button type="submit">Logout</button>
-    </form>
   </div>
-  <div>
+  <div class="logout-container">
+  <form class="logout" method="post" action="/api/sessions/logout">
+    <button type="submit">Logout</button>
+  </form>
+</div>
+</div>

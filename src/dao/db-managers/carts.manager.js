@@ -100,7 +100,7 @@ class cartsManager {
   async putProductsArray(cartId, productsObjet) {
     try {
       const findCart = await cartModel.findById(cartId);
-      console.log(findCart)
+      console.log(findCart);
       if (!findCart) {
         throw new Error("Carrito no encontrado");
       }
@@ -128,8 +128,10 @@ class cartsManager {
   async deleteAllProductsFromCart(cartId) {
     try {
       const findCart = await cartModel.findByIdAndDelete(cartId);
-      findCart.products = [];
-      return findCart.save();
+      if (!findCart) {
+        throw new Error("Carrito no encontrado");
+      }
+      return findCart;
     } catch (err) {
       throw new Error(err);
     }
@@ -137,41 +139,43 @@ class cartsManager {
 
   async purchaseCart(cartId, req) {
     try {
+      console.log(cartId);
       const findCart = await cartModel.findById(cartId);
       if (findCart.products.length == 0) {
-        logger.error("Carrito vacio");
+        logger.error("Carrito vacío");
       }
       if (!findCart) {
         logger.error("Carrito no encontrado");
       }
-
+  
       let ticketsProducts = [];
       let rejectedProducts = [];
-
+  
       for (let i = 0; i < findCart.products.length; i++) {
         const cartProduct = findCart.products[i];
         const productDB = await productsModel.findById(cartProduct.product._id);
         if (productDB.stock >= cartProduct.quantity) {
           ticketsProducts.push(cartProduct);
-
+  
           productDB.stock -= cartProduct.quantity;
           await productDB.save();
         } else {
           rejectedProducts.push("SIN STOCK", cartProduct);
         }
-
-        const newTicket = {
-          code: uuidv4(),
-          purchase_datetime: new Date(),
-          amount: ticketsProducts.reduce(
-            (acc, curr) => acc + curr.quantity * curr.product.price,
-            0
-          ),
-          purchaser: req.user.email,
-        };
-
-        const ticket = await ticketsModel.create(newTicket);
-        const mailTemplate = `<div>
+      }
+  
+      const newTicket = {
+        code: uuidv4(),
+        purchase_datetime: new Date(),
+        amount: ticketsProducts.reduce(
+          (acc, curr) => acc + curr.quantity * curr.product.price,
+          0
+        ),
+        purchaser: req.user.email,
+      };
+  
+      const ticket = await ticketsModel.create(newTicket);
+      const mailTemplate = `<div>
         <h1>Gracias por su compra</h1>
         <h2>Detalle de la compra</h2>
         <ul>
@@ -183,28 +187,30 @@ class cartsManager {
           )}
         </ul>
         <h3>Total: $${newTicket.amount}</h3>
-        <h3>Codigo de compra: ${newTicket.code}</h3>
-        </div>`;
-
-        await transporter.sendMail({
-          from: "Ecommerce",
-          to: req.user.email,
-          subject: "Gracias por su compra",
-          html: mailTemplate,
-        });
-
-        if (ticket)
-          for (let i = 0; i < ticketsProducts.length; i++) {
-            const ticketProduct = ticketsProducts[i];
-            //delete from cart ticketProduct
-            await this.deleteProductFromCart(cartId, ticketProduct.product._id);
-          }
-
-        if (rejectedProducts.length) {
-          return rejectedProducts;
+        <h3>Código de compra: ${newTicket.code}</h3>
+      </div>`;
+  
+      await transporter.sendMail({
+        from: "Ecommerce",
+        to: req.user.email,
+        subject: "Gracias por su compra",
+        html: mailTemplate,
+      });
+  
+      if (ticket) {
+        for (let i = 0; i < ticketsProducts.length; i++) {
+          const ticketProduct = ticketsProducts[i];
+          //eliminar del carrito ticketProduct
+          await this.deleteProductFromCart(cartId, ticketProduct.product._id);
         }
       }
+  
+      if (rejectedProducts.length) {
+        await this.deleteProductFromCart(cartId, rejectedProducts[1].product);
+        return rejectedProducts;
+      }
     } catch (err) {
+      console.log(err);
       logger.error(err);
     }
   }

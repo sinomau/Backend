@@ -1,7 +1,7 @@
 <h1>Registrate completando el formulario!</h1>
 <article>
   <div>
-    <form action="/api/sessions/signup" method="post">
+    <form action="/api/sessions/signup" method="post" enctype="multipart/form-data">
       <label for="first_name">Nombre</label>
       <input
         type="text"
@@ -35,7 +35,12 @@
         required="true"
       />
       <br />
-
+      <label for="avatar">Avatar</label>
+      <input
+        type="file"
+        placeholder="Ingresa tu Avatar"
+        name="avatar"
+        accept="image/*">
       <button type="submit">Registrarse</button>
       {{#if error}}
         <p>{{error}} <a href="/">Iniciar sesión</a></p>

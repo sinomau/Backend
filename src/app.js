@@ -29,7 +29,7 @@ dbConnection();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname + "/../public"));
+app.use(express.static("public"));
 app.use(errorHandler);
 app.use(addLogger);
 app.use("/loggerTest", loggerRouter);
@@ -53,7 +53,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //handlebars
-app.engine("handlebars", engine());
+app.engine(
+  "handlebars",
+  engine({
+    runtimeOptions: {
+      allowProtoPropertiesInData: true,
+    },
+  })
+);
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "../views"));
 //fs connect
@@ -86,6 +93,7 @@ app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/sessions", authRouter);
 app.use("/api/users/", usersRouter);
+app.use('/multer/users/img', express.static('./src/multer/users/img'));
 
 //chat
 const chatManager = new ChatManagerMongo(ChatModel);

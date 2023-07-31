@@ -18,7 +18,7 @@ const documentStorage = multer.diskStorage({
     cb(null, path.join(__dirname, "../multer/users/documents"));
   },
   filename: (req, file, cb) => {
-    cb(null, `-document-${file.originalname}`);
+    cb(null, `${req.user.email}-document-${file.originalname}`);
   },
 });
 

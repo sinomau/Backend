@@ -32,4 +32,29 @@ export const sendRecoveryPass = async (UserEmail,token) => {
   });
 };
 
+export const sendMailAfterDeleteUser = async (UserEmail) => {
+  await transporter.sendMail({
+    from: options.gmail.emailAdmin,
+    to: UserEmail,
+    subject: "Tu Cuenta Sera Eliminada por Inactividad",
+    html: `
+      <h1>Cuenta eliminada</h1>
+      <p>Tu cuenta ha sido eliminada correctamente.</p>
+    `,
+  });
+}
+
+export const sendMailBeforeDeleteProduct = async (UserEmail, productName) => {
+  await transporter.sendMail({
+    from: options.gmail.emailAdmin,
+    to: UserEmail,
+    subject: "Tu producto fue eliminado ",
+    html: `
+      <h1>Producto eliminado</h1>
+      <p>Tu producto ${productName} ha sido eliminado correctamente.</p>
+    `,
+  });
+};
+
+
 export { transporter };
