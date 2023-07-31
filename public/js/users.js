@@ -25,6 +25,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     alert("Usuarios eliminados correctamente.");
     const data = await del.json();
-    console.log(data);
   });
 });

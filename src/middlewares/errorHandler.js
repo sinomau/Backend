@@ -2,7 +2,6 @@ import {EError} from "../enums/EError.js";
 
 export const errorHandler = (err, req, res, next) => {
     if (err) {
-        console.log(err);
         switch (err.errorCode) {
         case EError.RoutingError:
             res.status(404).send({ status: "error", error: `${err}` });

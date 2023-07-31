@@ -36,8 +36,6 @@ describe("Integration tests", () => {
 
     const cookie = response.headers["set-cookie"][0];
     authToken = cookie.split(";")[0];
-
-    console.log(authToken);
   });
 
   describe("GET products", () => {
@@ -66,8 +64,8 @@ describe("Integration tests", () => {
         .post("/api/products")
         .send(mockProduct)
         .set("Cookie", authToken);
-        expect(response.status).to.eql(200);
-      });
+      expect(response.status).to.eql(200);
+    });
   });
 
   describe("GET products/:id", () => {

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOMContentLoaded event fired.");
   const deleteButtons = document.querySelectorAll("#deleteProduct");
 
   deleteButtons.forEach((button) => {

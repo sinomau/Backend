@@ -83,7 +83,6 @@ class productManager {
   async deleteProduct(productId) {
     const products = await this.getProducts();
     const parsedId = parseInt(productId);
-    console.log(parsedId);
     const id = products.find((product) => product.id === parsedId);
 
     if (!id) {

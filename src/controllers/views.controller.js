@@ -63,7 +63,6 @@ export const cartsViewController = async (req, res) => {
   if (carts) {
     const cartId = carts._id;
     const prodsInCart = carts.products;
-    console.log(carts);
     const id = carts._id;
     const idToString = id.toString();
     res.render("carts", { prodsInCart, idToString, cartId });

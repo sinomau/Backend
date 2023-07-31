@@ -1,8 +1,9 @@
 import winston from "winston";
 import path from "path";
-import __dirname from "./utils.js";
+import { fileURLToPath } from "url";
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const customLevels = {
   levels: {
@@ -52,7 +53,6 @@ const loggerDev = winston.createLogger({
     }),
   ],
 });
-
 
 export const addLogger = (req, res, next) => {
   if (currentEnv === "development") {

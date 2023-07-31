@@ -3,6 +3,7 @@ import { dirname } from "path";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { options } from "../config/options.js";
+import { logger } from "./logger.js";
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
@@ -28,7 +29,7 @@ export const verifyEmailToken = (token) => {
     const info = jwt.verify(token, options.gmail.emailToken);
     return info.email;
   } catch (error) {
-    console.log(error.message);
+    logger.error(error);
     return null;
   }
 };

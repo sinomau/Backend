@@ -8,7 +8,6 @@ export async function getProductService() {
 }
 
 export async function getProductByIdService(pid) {
-  console.log(pid);
   const getProductById = await manager.getProductById(pid);
   return getProductById;
 }

@@ -29,7 +29,6 @@ export const getCartProductsController = async (req, res) => {
 
 export const addProductToCartController = async (req, res) => {
   const findProduct = await getProductByIdService(req.params.pid);
-  console.log(findProduct);
   if (findProduct) {
     const productOwner = JSON.parse(JSON.stringify(findProduct.owner));
     const userId = JSON.parse(JSON.stringify(req.user._id));

@@ -3,7 +3,6 @@ const containerProducts = document.getElementById("list");
 const containerCarts = document.getElementById("cart");
 
 socket.on("new-product", (data) => {
-  console.log(data);
   containerProducts.innerHTML += `
     <ul>
     <li>Id: ${data.id}</li>

@@ -70,7 +70,6 @@ export const addProductController = async (req, res) => {
       category,
       owner,
     });
-    console.log(product);
     res.send({ status: "success", payload: product });
   } catch (err) {
     logger.error(err);
@@ -110,12 +109,9 @@ export const updateProductController = async (req, res) => {
 export const deleteProductController = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const findProduct = await getProductByIdService(id);
-    console.log(findProduct);
     if (findProduct) {
       const productOwner = JSON.parse(JSON.stringify(findProduct.owner));
-      console.log(productOwner);
       const userId = JSON.parse(JSON.stringify(req.user._id));
 
       const ownerUser = await getUserByIdService(productOwner);
@@ -166,7 +162,7 @@ export const orderProductByPriceController = async (req, res) => {
     }
   } catch (err) {
     logger.error(err);
-    console.log(err);
+   
 
     res.status(404).send({ status: "error", error: `${err}` });
   }

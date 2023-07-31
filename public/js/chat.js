@@ -24,7 +24,6 @@ sendBtn.addEventListener('click',(e)=>{
 const divMessages = document.getElementById("historial");
 //recibimos los mensajes del server.
 socketClient.on("msgHistory",(data)=>{
-    // console.log("data", data);
     //vaciamos el contenido de div
     divMessages.innerHTML='';
     data.forEach(element => {

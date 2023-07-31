@@ -7,7 +7,6 @@ dbConnection();
 const updateProducts = async () => {
   try {
     const products = await productModel.find();
-    console.log(products)
     const adminId = "646fb898fb640ad174520165";
     const result = await productModel.updateMany(
       {},

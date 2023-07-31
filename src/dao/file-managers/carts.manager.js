@@ -50,7 +50,6 @@ class cartsManager {
   async getCartProducts(cartId) {
     const carts = await this.getCarts();
     const parsedId = parseInt(cartId);
-    console.log(carts);
     const find = carts.find((e) => e.id === parsedId);
 
     if (find) {

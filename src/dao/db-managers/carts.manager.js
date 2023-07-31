@@ -19,7 +19,7 @@ class cartsManager {
       const carts = await cartModel.find().lean().populate("products.product");
       return carts;
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return [];
     }
   }
@@ -100,7 +100,6 @@ class cartsManager {
   async putProductsArray(cartId, productsObjet) {
     try {
       const findCart = await cartModel.findById(cartId);
-      console.log(findCart);
       if (!findCart) {
         throw new Error("Carrito no encontrado");
       }
@@ -139,7 +138,6 @@ class cartsManager {
 
   async purchaseCart(cartId, req) {
     try {
-      console.log(cartId);
       const findCart = await cartModel.findById(cartId);
       if (findCart.products.length == 0) {
         logger.error("Carrito vacío");
@@ -210,7 +208,6 @@ class cartsManager {
         return rejectedProducts;
       }
     } catch (err) {
-      console.log(err);
       logger.error(err);
     }
   }
