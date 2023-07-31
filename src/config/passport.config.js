@@ -21,13 +21,15 @@ const initializedPassport = () => {
             logger.error("Usuario ya existe");
             return done(null, false, { message: "Usuario ya existe" });
           }
+          const img = req.file ? req.file.path : "";
+
           const newUser = {
             email: username,
             first_name: req.body.first_name ? req.body.first_name : "NoName",
             last_name: req.body.last_name ? req.body.last_name : "NoLastName",
             password: createHash(password),
             role: "user",
-            avatar: req.file.path,
+            avatar: img,
           };
 
           if (username.endsWith("@coder.com")) {
