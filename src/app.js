@@ -113,4 +113,4 @@ socketServer.on("connection", async (socketConnected) => {
   });
 });
 
-export { app };
+export default app;
